@@ -1,8 +1,10 @@
 #include "lib/imgui/imgui.h"
 #include "lib/imgui/imgui_impl_sdl.h"
 #include "lib/imgui/imgui_impl_sdlrenderer.h"
-#include "definitions.h"
+#include "src/definitions.h"
+#include "src/mmu.h"
 
+#include <cstdio>
 #include <SDL.h>
 
 int main(int argc, char* argv[])
@@ -25,6 +27,9 @@ int main(int argc, char* argv[])
     ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
     ImGui_ImplSDLRenderer_Init(renderer);
 
+    MMU* mmu = new MMU();
+    mmu->load(argv[1]);
+
     // Main event loop
     bool end = false;
     while (!end) {
@@ -44,4 +49,6 @@ int main(int argc, char* argv[])
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
+
+    return 0;
 }
