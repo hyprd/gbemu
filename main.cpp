@@ -9,6 +9,7 @@
 
 int main(int argc, char* argv[])
 {
+    PrintMessage(Info, "Initializing SDL");
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         printf("Failed to initialize: %s\n", SDL_GetError());
@@ -21,6 +22,7 @@ int main(int argc, char* argv[])
         return -1;
     }
 
+    PrintMessage(Info, "Initializing ImGui context");
     // Initialize ImGui context
     ImGui::CreateContext();
     ImGui::StyleColorsDark();
@@ -42,6 +44,7 @@ int main(int argc, char* argv[])
         }
     }
 
+    PrintMessage(Info, "Closing application");
     // Clean and close
     ImGui_ImplSDLRenderer_Shutdown();
     ImGui_ImplSDL2_Shutdown();

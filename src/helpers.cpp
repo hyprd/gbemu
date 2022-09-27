@@ -16,5 +16,5 @@ void PrintMessage(DType type, std::string message) {
 		t = "UNKNOWN";
 		break;
 	}
-	printf("[%s]%s", t.c_str(), message.c_str());
+	printf("[%s]%s\n", t.c_str(), message.c_str());
 }
