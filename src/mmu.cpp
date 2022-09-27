@@ -9,15 +9,9 @@ MMU::~MMU() {}
 
 void MMU::load(std::string file) {
 	PrintMessage(Info, "Loading cartridge"); 
-    std::fstream filestream;
-    filestream.open(file, std::ios::in);
-    uint8_t ch;
-    for (int i = 0; i < sizeof(this->memory) / sizeof(this->memory[0]); i++) {
-        filestream >> ch;
-        if (filestream.eof()) { 
-        break; 
-        }
-        memory[i] = ch;
-    }
-    filestream.close();
+    std::ifstream rom(file, std::ios::binary);
+    rom.seekg(0, std::ios::end);
+    int size = rom.tellg();
+    rom.seekg(std::ios::beg);
+    rom.read((char *)memory, size);
 }
