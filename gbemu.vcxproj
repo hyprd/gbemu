@@ -140,10 +140,12 @@
     <ClCompile Include="lib\imgui\imgui_tables.cpp" />
     <ClCompile Include="lib\imgui\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\cpu.cpp" />
     <ClCompile Include="src\helpers.cpp" />
     <ClCompile Include="src\mmu.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\cpu.h" />
     <ClInclude Include="src\definitions.h" />
     <ClInclude Include="lib\imgui\imconfig.h" />
     <ClInclude Include="lib\imgui\imgui.h" />

@@ -3,6 +3,7 @@
 #include "lib/imgui/imgui_impl_sdlrenderer.h"
 #include "src/definitions.h"
 #include "src/mmu.h"
+#include "src/cpu.h"
 
 #include <cstdio>
 #include <SDL.h>
