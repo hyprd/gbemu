@@ -32,9 +32,13 @@ int main(int argc, char* argv[])
 
     MMU* mmu = new MMU();
     mmu->load(argv[1]);
+    CPU* cpu = new CPU();
 
     // Main event loop
     bool end = false;
+
+    
+
     while (!end) {
         SDL_Event event;
         while (SDL_PollEvent(&event))
@@ -43,8 +47,26 @@ int main(int argc, char* argv[])
             if (event.type == SDL_QUIT)
                 end = true;
         }
-    }
+        ImGui_ImplSDLRenderer_NewFrame();
+        ImGui_ImplSDL2_NewFrame();
+        ImGui::NewFrame();
+        ImGui::Begin("CPU");
+        ImGui::Text("AF %02X", cpu->AF.getRegister());
+        ImGui::Text("BC %02X", cpu->BC.getRegister());
+        ImGui::Text("DE %02X", cpu->DE.getRegister());
+        ImGui::Text("HL %02X", cpu->HL.getRegister());
+        ImGui::Text("SP %02X", cpu->sp);
+        ImGui::Text("PC %02X", cpu->pc);
+        ImGui::Text("Cycles %02X", cpu->cycles);
 
+        ImGui::End();
+        ImGui::Render();
+        ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+        SDL_SetRenderDrawColor(renderer, (uint8_t)(clear_color.x * 255), (Uint8)(clear_color.y * 255), (Uint8)(clear_color.z * 255), (Uint8)(clear_color.w * 255));
+        SDL_RenderClear(renderer);
+        ImGui_ImplSDLRenderer_RenderDrawData(ImGui::GetDrawData());
+        SDL_RenderPresent(renderer);
+    }
     PrintMessage(Info, "Closing application");
     // Clean and close
     ImGui_ImplSDLRenderer_Shutdown();
