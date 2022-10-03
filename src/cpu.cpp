@@ -64,6 +64,18 @@ void CPU::execute(uint8_t inst) {
 	// handle interrupt function
 }
 
+void CPU::LD(uint8_t& reg1, uint8_t reg2) {
+	reg1 = reg2;
+}
+
+void CPU::LD(uint16_t address, uint8_t reg) {
+	mmu->set(address, reg);
+}
+
+void CPU::LD(uint8_t& reg1, uint16_t address) {
+	reg1 = mmu->get(address);
+}
+
 void CPU::bindOpcodes() {
 	this->opcodes[0x00] = &CPU::Opcode0x00;
 	this->opcodes[0x01] = &CPU::Opcode0x01;
