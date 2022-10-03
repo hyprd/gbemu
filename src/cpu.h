@@ -1,5 +1,6 @@
 #pragma once
 #include "definitions.h"
+#include "mmu.h"
 
 class Register {
 public:
@@ -14,8 +15,10 @@ public:
 
 class CPU {
 public: 
-	CPU();
+	CPU(MMU * mmu);
 	~CPU();
+
+	MMU* mmu;
 
 	uint8_t A, B, C, D, E, F, H, L;
 	uint8_t FLAG_Z = 7;
@@ -36,7 +39,7 @@ public:
 	bool extended = false;
 	bool halted = false;
 
-	typedef void (CPU::* Opcode)(void);
+	typedef void (*Opcode)(void);
 	Opcode opcodes[0x100];
 	Opcode extendedOpcodes[0x100];
 

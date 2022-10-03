@@ -143,6 +143,7 @@
     <ClCompile Include="src\cpu.cpp" />
     <ClCompile Include="src\helpers.cpp" />
     <ClCompile Include="src\mmu.cpp" />
+    <ClCompile Include="src\opcodes.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\cpu.h" />
@@ -157,6 +158,7 @@
     <ClInclude Include="lib\imgui\imstb_truetype.h" />
     <ClInclude Include="src\helpers.h" />
     <ClInclude Include="src\mmu.h" />
+    <ClInclude Include="src\opcodes.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
 
     MMU* mmu = new MMU();
     mmu->load(argv[1]);
-    CPU* cpu = new CPU();
+    CPU* cpu = new CPU(mmu);
 
     // Main event loop
     bool end = false;
@@ -44,6 +44,7 @@ int main(int argc, char* argv[])
             if (event.type == SDL_QUIT)
                 end = true;
         }
+        cpu->cycle();
         ImGui_ImplSDLRenderer_NewFrame();
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();

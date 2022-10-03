@@ -21,7 +21,8 @@ void Register::setRegister(uint16_t value) {
 	*high = value >> 8;
 }
 
-CPU::CPU() {
+CPU::CPU(MMU * mmu) {
+	this->mmu = mmu;
 	this->initialize();
 }
 
@@ -45,16 +46,16 @@ void CPU::initialize() {
 }
 
 void CPU::cycle() {
-
+	execute(mmu->memory[pc]);
 }
 
 void CPU::execute(uint8_t inst) {
 	if (!extended) {
-		(this->*opcodes[inst])();
+		//(this->*opcodes[inst])();
 		// add cycles
 	}
 	else {
-		(this->*extendedOpcodes[inst])();
+		//(this->*extendedOpcodes[inst])();
 		// add cycles
 		extended = false;
 	}
