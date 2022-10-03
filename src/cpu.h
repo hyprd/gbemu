@@ -48,6 +48,8 @@ public:
 	void LD(uint8_t& reg1, uint8_t reg2); // LD X,Y
 	void LD(uint16_t address, uint8_t reg); // LD (YZ),X, LD d16,X
 	void LD(uint8_t& reg1, uint16_t address); // LD X,(YZ), LD X,d16
+
+	void ADD();
 	
 	void Opcode0x00();
 	void Opcode0x01();

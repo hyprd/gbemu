@@ -76,6 +76,16 @@ void CPU::LD(uint8_t& reg1, uint16_t address) {
 	reg1 = mmu->get(address);
 }
 
+/* 
+	Z - result is zero
+	N - reset
+	H - set if carry from 3
+	C - set if carry from 7
+*/
+void CPU::ADD() {
+
+}
+
 void CPU::bindOpcodes() {
 	this->opcodes[0x00] = &CPU::Opcode0x00;
 	this->opcodes[0x01] = &CPU::Opcode0x01;

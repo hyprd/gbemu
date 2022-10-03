@@ -23,3 +23,19 @@ void MMU::set(uint16_t address, uint8_t value) {
 uint8_t MMU::get(uint16_t address) {
     return memory[address];
 }
+
+void MMU::SetBit(uint8_t& byte, uint8_t bit) {
+    byte |= 1UL << bit;
+}
+
+void MMU::ClearBit(uint8_t& byte, uint8_t bit) {
+    byte &= ~(1UL << bit);
+}
+
+void MMU::ToggleBit(uint8_t& byte, uint8_t bit) {
+    byte ^= 1UL << bit;
+}
+
+uint8_t MMU::GetBit(uint8_t byte, uint8_t bit) {
+    return !!(byte >> bit);
+}
