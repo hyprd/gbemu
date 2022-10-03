@@ -24,18 +24,18 @@ uint8_t MMU::get(uint16_t address) {
     return memory[address];
 }
 
-void MMU::SetBit(uint8_t& byte, uint8_t bit) {
+void MMU::setBit(uint8_t& byte, uint8_t bit) {
     byte |= 1UL << bit;
 }
 
-void MMU::ClearBit(uint8_t& byte, uint8_t bit) {
+void MMU::clearBit(uint8_t& byte, uint8_t bit) {
     byte &= ~(1UL << bit);
 }
 
-void MMU::ToggleBit(uint8_t& byte, uint8_t bit) {
+void MMU::toggleBit(uint8_t& byte, uint8_t bit) {
     byte ^= 1UL << bit;
 }
 
-uint8_t MMU::GetBit(uint8_t byte, uint8_t bit) {
+uint8_t MMU::getBit(uint8_t byte, uint8_t bit) {
     return !!(byte >> bit);
 }

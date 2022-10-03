@@ -64,6 +64,12 @@ void CPU::execute(uint8_t inst) {
 	// handle interrupt function
 }
 
+bool CPU::didOverflow(uint8_t base, uint8_t add, bool half) {
+	if (!half) return static_cast<uint16_t>(base + add) > 0xFF;
+	return static_cast<uint8_t>(base + add) > 0xF;
+}
+
+
 void CPU::LD(uint8_t& reg1, uint8_t reg2) {
 	reg1 = reg2;
 }
@@ -72,18 +78,16 @@ void CPU::LD(uint16_t address, uint8_t reg) {
 	mmu->set(address, reg);
 }
 
-void CPU::LD(uint8_t& reg1, uint16_t address) {
-	reg1 = mmu->get(address);
+void CPU::LD(uint8_t& reg, uint16_t address) {
+	reg = mmu->get(address);
 }
 
-/* 
-	Z - result is zero
-	N - reset
-	H - set if carry from 3
-	C - set if carry from 7
-*/
-void CPU::ADD() {
-
+void CPU::ADD(uint8_t reg) {
+	uint8_t eval = static_cast<uint8_t>(A + reg);
+	(eval == 0) ? mmu->setBit(F, FLAG_Z) : mmu->clearBit(F, FLAG_Z);
+	mmu->clearBit(F, FLAG_N);
+	didOverflow(A, reg, true) ? mmu->setBit(F, FLAG_H) : mmu->clearBit(F, FLAG_H);
+	didOverflow(A, reg) ? mmu->setBit(F, FLAG_C) : mmu->clearBit(F, FLAG_C);
 }
 
 void CPU::bindOpcodes() {
@@ -601,7 +605,6 @@ void CPU::bindOpcodes() {
 	this->extendedOpcodes[0xFE] = &CPU::extendedOpcode0xFE;
 	this->extendedOpcodes[0xFF] = &CPU::extendedOpcode0xFF;
 }
-
 void CPU::Opcode0x00(){}
 void CPU::Opcode0x01(){}
 void CPU::Opcode0x02(){}
