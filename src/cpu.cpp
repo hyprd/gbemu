@@ -42,8 +42,6 @@ void CPU::initialize() {
 	// Set stack pointer, program counter and cycles members to 
 	// default values
 	sp = pc = cycles = 0x0000;
-
-	
 }
 
 void CPU::cycle() {
@@ -51,5 +49,15 @@ void CPU::cycle() {
 }
 
 void CPU::execute(uint8_t inst) {
-
+	if (!extended) {
+		(this->*opcodes[inst])();
+		// add cycles
+	}
+	else {
+		(this->*extendedOpcodes[inst])();
+		// add cycles
+		extended = false;
+	}
+	if (!halted) pc++;
+	// handle interrupt function
 }

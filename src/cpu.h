@@ -33,7 +33,14 @@ public:
 	void cycle();
 	void execute(uint8_t inst);
 
+	bool extended = false;
+	bool halted = false;
+
 	typedef void (CPU::* Opcode)(void);
 	Opcode opcodes[0x100];
 	Opcode extendedOpcodes[0x100];
+
+	void LD(uint8_t& reg1, uint8_t reg2); // LD X,Y
+	void LD(uint16_t address, uint8_t reg); // LD (YZ),X, LD d16,X
+	void LD(uint8_t& reg1, uint16_t address); // LD X,(YZ), LD X,d16
 };

@@ -36,9 +36,6 @@ int main(int argc, char* argv[])
 
     // Main event loop
     bool end = false;
-
-    
-
     while (!end) {
         SDL_Event event;
         while (SDL_PollEvent(&event))
@@ -58,7 +55,6 @@ int main(int argc, char* argv[])
         ImGui::Text("SP %02X", cpu->sp);
         ImGui::Text("PC %02X", cpu->pc);
         ImGui::Text("Cycles %02X", cpu->cycles);
-
         ImGui::End();
         ImGui::Render();
         ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
