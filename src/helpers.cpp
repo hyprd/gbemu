@@ -18,3 +18,7 @@ void PrintMessage(DType type, std::string message) {
 	}
 	printf("[%s]%s\n", t.c_str(), message.c_str());
 }
+
+void PrintHex(uint8_t decimal) {
+	printf("%02X ", decimal);
+}
