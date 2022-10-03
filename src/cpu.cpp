@@ -64,11 +64,15 @@ void CPU::execute(uint8_t inst) {
 	// handle interrupt function
 }
 
-bool CPU::didOverflow(uint8_t base, uint8_t add, bool half) {
+bool CPU::didOverflowu8(uint8_t base, uint8_t add, bool half) {
 	if (!half) return static_cast<uint16_t>(base + add) > 0xFF;
 	return static_cast<uint8_t>(base + add) > 0xF;
 }
 
+bool CPU::didOverflowu16(uint16_t base, uint16_t add, bool half) {
+	if (!half) return static_cast<uint32_t>(base + add) > 0xFFFF;
+	return static_cast<uint16_t>(base + add) > 0xFF;
+}
 
 void CPU::LD(uint8_t& reg1, uint8_t reg2) {
 	reg1 = reg2;
@@ -86,8 +90,33 @@ void CPU::ADD(uint8_t reg) {
 	uint8_t eval = static_cast<uint8_t>(A + reg);
 	(eval == 0) ? mmu->setBit(F, FLAG_Z) : mmu->clearBit(F, FLAG_Z);
 	mmu->clearBit(F, FLAG_N);
-	didOverflow(A, reg, true) ? mmu->setBit(F, FLAG_H) : mmu->clearBit(F, FLAG_H);
-	didOverflow(A, reg) ? mmu->setBit(F, FLAG_C) : mmu->clearBit(F, FLAG_C);
+	didOverflowu8(A, reg, true) ? mmu->setBit(F, FLAG_H) : mmu->clearBit(F, FLAG_H);
+	didOverflowu8(A, reg) ? mmu->setBit(F, FLAG_C) : mmu->clearBit(F, FLAG_C);
+}
+
+void CPU::ADD_HL(uint8_t reg) {
+	HL.setRegister(reg);
+	mmu->clearBit(F, FLAG_N);
+	didOverflowu16(HL.getRegister(), reg, true) ? mmu->setBit(F, FLAG_H) : mmu->clearBit(F, FLAG_H);
+	didOverflowu16(HL.getRegister(), reg) ? mmu->setBit(F, FLAG_C) : mmu->clearBit(F, FLAG_C);
+}
+
+void CPU::ADD_SP() {
+	uint8_t imm = mmu->get(pc++);
+	sp += imm;
+	mmu->clearBit(F, FLAG_Z);
+	mmu->clearBit(F, FLAG_N);
+	didOverflowu16(sp, imm, true) ? mmu->setBit(F, FLAG_H) : mmu->clearBit(F, FLAG_H);
+	didOverflowu16(sp, imm) ? mmu->setBit(F, FLAG_C) : mmu->clearBit(F, FLAG_C);
+}
+
+void CPU::ADC(uint8_t reg) {
+	uint8_t carry = mmu->getBit(F, FLAG_C);
+	uint8_t eval = static_cast<uint8_t>(A + reg + carry);
+	(eval == 0) ? mmu->setBit(F, FLAG_Z) : mmu->clearBit(F, FLAG_Z);
+	mmu->clearBit(F, FLAG_N);
+	didOverflowu8(A, (reg + carry), true) ? mmu->setBit(F, FLAG_H) : mmu->clearBit(F, FLAG_H);
+	didOverflowu8(A, (reg + carry)) ? mmu->setBit(F, FLAG_C) : mmu->clearBit(F, FLAG_C);
 }
 
 void CPU::bindOpcodes() {

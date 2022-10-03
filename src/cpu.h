@@ -38,7 +38,8 @@ public:
 	void execute(uint8_t inst);
 	void bindOpcodes();
 	
-	bool didOverflow(uint8_t base, uint8_t add, bool half = false);
+	bool didOverflowu8(uint8_t base, uint8_t add, bool half = false);
+	bool didOverflowu16(uint16_t base, uint16_t add, bool half = false);
 
 	bool extended = false;
 	bool halted = false;
@@ -52,6 +53,9 @@ public:
 	void LD(uint8_t& reg, uint16_t address); // LD X,(YZ), LD X,d16
 
 	void ADD(uint8_t reg);
+	void ADD_HL(uint8_t reg);
+	void ADD_SP();
+	void ADC(uint8_t reg);
 	
 	void Opcode0x00();
 	void Opcode0x01();
