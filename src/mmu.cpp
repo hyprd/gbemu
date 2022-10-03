@@ -3,6 +3,7 @@
 MMU::MMU() {
 	PrintMessage(Info, "Instantiating memory array");
 	memset(memory, 0, GB_MEMORY);
+
 }
 
 MMU::~MMU() {}
