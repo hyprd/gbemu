@@ -64,19 +64,28 @@ void CPU::execute(uint8_t inst) {
 	// handle interrupt function
 }
 
-bool CPU::didOverflowu8(uint8_t base, uint8_t add, bool half) {
-	if (!half) return static_cast<uint16_t>(base + add) > 0xFF;
-	return static_cast<uint8_t>(base + add) > 0xF;
+bool CPU::didCarry(uint8_t reg) {
+	return (A + reg) > 0xFF;
 }
 
-bool CPU::didOverflowu16(uint16_t base, uint16_t add, bool half) {
-	if (!half) return static_cast<uint32_t>(base + add) > 0xFFFF;
-	return static_cast<uint16_t>(base + add) > 0xFF;
+bool CPU::didHalfCarry(uint8_t reg) {
+	return ((A & 0x0F) + (reg & 0x0F)) > 0x0F;
 }
 
-bool CPU::didUnderflowu8(uint8_t base, uint8_t sub, bool half) {
-	if (!half) return static_cast<int8_t>(base - sub) < 0x00;
-	return (base & 0x0F) > (sub & 0x0F);
+bool CPU::didBorrow(uint8_t reg) {
+	return static_cast<int8_t>((A - reg)) < 0x0;
+}
+
+bool CPU::didHalfBorrow(uint8_t reg) {
+	return static_cast<int8_t>((A & 0x0F) - (reg & 0x0F)) < 0x0;
+}
+
+bool CPU::didCarry16(uint16_t reg, uint16_t reg2) {
+	return (reg + reg2) > 0xFFFF;
+}
+
+bool CPU::didHalfCarry16(uint16_t reg, uint16_t reg2) {
+	return ((reg & 0x00FF) + (reg2 & 0x00FF)) > 0x00FF;
 }
 
 uint8_t CPU::getFlag(uint8_t flag) {
@@ -91,6 +100,8 @@ void CPU::clearFlag(uint8_t flag) {
 	mmu->clearBit(F, flag);
 }
 
+/* ASSIGNMENT FUNCTIONS */
+
 void CPU::LD(uint8_t& reg1, uint8_t reg2) {
 	reg1 = reg2;
 }
@@ -103,19 +114,21 @@ void CPU::LD(uint8_t& reg, uint16_t address) {
 	reg = mmu->get(address);
 }
 
+/* ARITHMETIC FUNCTIONS */
+
 void CPU::ADD(uint8_t reg) {
 	uint8_t eval = static_cast<uint8_t>(A + reg);
 	(eval == 0) ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
-	didOverflowu8(A, reg, true) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
-	didOverflowu8(A, reg) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
+	didHalfCarry(reg) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
+	didCarry(reg) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
 }
 
-void CPU::ADD_HL(uint8_t reg) {
-	HL.setRegister(reg);
+void CPU::ADD_HL(Register reg) {
+	HL.setRegister(HL.getRegister() + reg.getRegister());
 	clearFlag(FLAG_N);
-	didOverflowu16(HL.getRegister(), reg, true) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
-	didOverflowu16(HL.getRegister(), reg) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
+	didHalfCarry16(HL.getRegister(), reg.getRegister()) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
+	didCarry16(HL.getRegister(), reg.getRegister()) ? setFlag(FLAG_C): clearFlag(FLAG_C);
 }
 
 void CPU::ADD_SP() {
@@ -123,33 +136,71 @@ void CPU::ADD_SP() {
 	sp += imm;
 	clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
-	didOverflowu16(sp, imm, true) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
-	didOverflowu16(sp, imm) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
+	((sp & 0x0FFF) + imm) > 0x0FFF ? setFlag(FLAG_H) : clearFlag(FLAG_H);
+	didCarry16(sp, static_cast<uint16_t>(imm)) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
 }
 
 void CPU::ADC(uint8_t reg) {
-	uint8_t carry = mmu->getBit(FLAG_C);
+	uint8_t carry = mmu->getBit(F, FLAG_C);
 	uint8_t eval = static_cast<uint8_t>(A + reg + carry);
 	(eval == 0) ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
-	didOverflowu8(A, (reg + carry), true) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
-	didOverflowu8(A, (reg + carry)) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
+	didHalfCarry(reg + carry) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
+	didCarry(reg + carry) ? setFlag(FLAG_C) : setFlag(FLAG_C);
+	A = eval;
 }
 
 void CPU::SUB(uint8_t reg) {
 	int8_t eval = static_cast<int8_t>(A - reg);
 	eval == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	setFlag(FLAG_N);
-	didUnderflowu8(A, reg, true) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
-	didUnderflowu8(A, reg) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
+	didHalfBorrow(reg) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
+	didBorrow(reg) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
+	A = eval;
 }
 
 void CPU::SBC(uint8_t reg) {
 	uint8_t carry = getFlag(FLAG_C);
 	int8_t eval = static_cast<int8_t>(A - (reg + carry));
 	eval == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
-	didUnderflowu8(A, reg, true) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
-	didUnderflowu8(A, reg) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
+	setFlag(FLAG_N);
+	didHalfBorrow(reg + carry) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
+	didBorrow(reg + carry) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
+	A = eval;
+}
+
+/* LOGICAL FUNCTIONS */
+
+void CPU::AND(uint8_t reg) {
+	A &= reg;
+	A == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
+	clearFlag(FLAG_N);
+	setFlag(FLAG_H);
+	clearFlag(FLAG_C);
+}
+
+void CPU::OR(uint8_t reg) {
+	A |= reg;
+	A == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
+	clearFlag(FLAG_N);
+	clearFlag(FLAG_H);
+	clearFlag(FLAG_C);
+}
+
+void CPU::XOR(uint8_t reg) {
+	A ^= reg;
+	A == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
+	clearFlag(FLAG_N);
+	clearFlag(FLAG_H);
+	clearFlag(FLAG_C);
+}
+
+void CPU::CP(uint8_t reg) {
+	uint8_t eval =  A - reg;
+	((eval == 0) || (eval == reg)) ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
+	setFlag(FLAG_N);
+	didHalfCarry(reg) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
+	didCarry(reg) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
 }
 
 void CPU::bindOpcodes() {

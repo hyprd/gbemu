@@ -38,10 +38,12 @@ public:
 	void execute(uint8_t inst);
 	void bindOpcodes();
 	
-	bool didOverflowu8(uint8_t base, uint8_t add, bool half = false);
-	bool didOverflowu16(uint16_t base, uint16_t add, bool half = false);
-	bool didUnderflowu8(uint8_t base, uint8_t sub, bool half = false);
-	bool didUnderflowu16(uint16_t base, uint16_t sub, bool half = false);
+	bool didCarry(uint8_t reg);
+	bool didHalfCarry(uint8_t reg);
+	bool didBorrow(uint8_t reg);
+	bool didHalfBorrow(uint8_t reg);
+	bool didCarry16(uint16_t reg, uint16_t reg2);
+	bool didHalfCarry16(uint16_t reg, uint16_t reg2);
 
 	uint8_t getFlag(uint8_t flag);
 	void setFlag(uint8_t flag);
@@ -59,12 +61,17 @@ public:
 	void LD(uint8_t& reg, uint16_t address); // LD X,(YZ), LD X,d16
 
 	void ADD(uint8_t reg);
-	void ADD_HL(uint8_t reg);
+	void ADD_HL(Register reg);
 	void ADD_SP();
 	void ADC(uint8_t reg);
 
 	void SUB(uint8_t reg);
 	void SBC(uint8_t reg);
+
+	void AND(uint8_t reg);
+	void OR(uint8_t reg);
+	void XOR(uint8_t reg);
+	void CP(uint8_t reg);
 	
 	void Opcode0x00();
 	void Opcode0x01();
