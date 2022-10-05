@@ -74,6 +74,23 @@ bool CPU::didOverflowu16(uint16_t base, uint16_t add, bool half) {
 	return static_cast<uint16_t>(base + add) > 0xFF;
 }
 
+bool CPU::didUnderflowu8(uint8_t base, uint8_t sub, bool half) {
+	if (!half) return static_cast<int8_t>(base - sub) < 0x00;
+	return (base & 0x0F) > (sub & 0x0F);
+}
+
+uint8_t CPU::getFlag(uint8_t flag) {
+	return mmu->getBit(F, flag);
+}
+
+void CPU::setFlag(uint8_t flag) {
+	mmu->setBit(F, flag);
+}
+
+void CPU::clearFlag(uint8_t flag) {
+	mmu->clearBit(F, flag);
+}
+
 void CPU::LD(uint8_t& reg1, uint8_t reg2) {
 	reg1 = reg2;
 }
@@ -88,35 +105,51 @@ void CPU::LD(uint8_t& reg, uint16_t address) {
 
 void CPU::ADD(uint8_t reg) {
 	uint8_t eval = static_cast<uint8_t>(A + reg);
-	(eval == 0) ? mmu->setBit(F, FLAG_Z) : mmu->clearBit(F, FLAG_Z);
-	mmu->clearBit(F, FLAG_N);
-	didOverflowu8(A, reg, true) ? mmu->setBit(F, FLAG_H) : mmu->clearBit(F, FLAG_H);
-	didOverflowu8(A, reg) ? mmu->setBit(F, FLAG_C) : mmu->clearBit(F, FLAG_C);
+	(eval == 0) ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
+	clearFlag(FLAG_N);
+	didOverflowu8(A, reg, true) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
+	didOverflowu8(A, reg) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
 }
 
 void CPU::ADD_HL(uint8_t reg) {
 	HL.setRegister(reg);
-	mmu->clearBit(F, FLAG_N);
-	didOverflowu16(HL.getRegister(), reg, true) ? mmu->setBit(F, FLAG_H) : mmu->clearBit(F, FLAG_H);
-	didOverflowu16(HL.getRegister(), reg) ? mmu->setBit(F, FLAG_C) : mmu->clearBit(F, FLAG_C);
+	clearFlag(FLAG_N);
+	didOverflowu16(HL.getRegister(), reg, true) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
+	didOverflowu16(HL.getRegister(), reg) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
 }
 
 void CPU::ADD_SP() {
 	uint8_t imm = mmu->get(pc++);
 	sp += imm;
-	mmu->clearBit(F, FLAG_Z);
-	mmu->clearBit(F, FLAG_N);
-	didOverflowu16(sp, imm, true) ? mmu->setBit(F, FLAG_H) : mmu->clearBit(F, FLAG_H);
-	didOverflowu16(sp, imm) ? mmu->setBit(F, FLAG_C) : mmu->clearBit(F, FLAG_C);
+	clearFlag(FLAG_Z);
+	clearFlag(FLAG_N);
+	didOverflowu16(sp, imm, true) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
+	didOverflowu16(sp, imm) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
 }
 
 void CPU::ADC(uint8_t reg) {
-	uint8_t carry = mmu->getBit(F, FLAG_C);
+	uint8_t carry = mmu->getBit(FLAG_C);
 	uint8_t eval = static_cast<uint8_t>(A + reg + carry);
-	(eval == 0) ? mmu->setBit(F, FLAG_Z) : mmu->clearBit(F, FLAG_Z);
-	mmu->clearBit(F, FLAG_N);
-	didOverflowu8(A, (reg + carry), true) ? mmu->setBit(F, FLAG_H) : mmu->clearBit(F, FLAG_H);
-	didOverflowu8(A, (reg + carry)) ? mmu->setBit(F, FLAG_C) : mmu->clearBit(F, FLAG_C);
+	(eval == 0) ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
+	clearFlag(FLAG_N);
+	didOverflowu8(A, (reg + carry), true) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
+	didOverflowu8(A, (reg + carry)) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
+}
+
+void CPU::SUB(uint8_t reg) {
+	int8_t eval = static_cast<int8_t>(A - reg);
+	eval == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
+	setFlag(FLAG_N);
+	didUnderflowu8(A, reg, true) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
+	didUnderflowu8(A, reg) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
+}
+
+void CPU::SBC(uint8_t reg) {
+	uint8_t carry = getFlag(FLAG_C);
+	int8_t eval = static_cast<int8_t>(A - (reg + carry));
+	eval == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
+	didUnderflowu8(A, reg, true) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
+	didUnderflowu8(A, reg) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
 }
 
 void CPU::bindOpcodes() {
