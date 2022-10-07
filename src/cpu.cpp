@@ -203,11 +203,15 @@ void CPU::CP(uint8_t reg) {
 	didCarry(reg) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
 }
 
-void CPU::INC(uint8_t *reg) {
+void CPU::INC(uint8_t* reg) {
 	(*reg) = (*reg + 1);
 	*reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
 	didHalfCarry(*reg) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
+}
+
+void CPU::INC(Register reg) {
+	reg.setRegister(reg.getRegister() + 1);
 }
 
 void CPU::DEC(uint8_t* reg) {
@@ -215,6 +219,10 @@ void CPU::DEC(uint8_t* reg) {
 	*reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
 	didHalfCarry(*reg) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
+}
+
+void CPU::DEC(Register reg) {
+	reg.setRegister(reg.getRegister() - 1);
 }
 
 void CPU::bindOpcodes() {

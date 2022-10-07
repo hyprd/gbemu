@@ -74,7 +74,9 @@ public:
 	void CP(uint8_t reg);
 
 	void INC(uint8_t* reg);
+	void INC(Register reg);
 	void DEC(uint8_t * reg);
+	void DEC(Register reg);
 	
 	void Opcode0x00();
 	void Opcode0x01();
