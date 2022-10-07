@@ -205,14 +205,14 @@ void CPU::CP(uint8_t reg) {
 
 void CPU::INC(uint8_t *reg) {
 	(*reg) = (*reg + 1);
-	*reg == 1 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
+	*reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
 	didHalfCarry(*reg) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
 }
 
 void CPU::DEC(uint8_t* reg) {
 	(*reg) = (*reg - 1);
-	*reg == 1 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
+	*reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
 	didHalfCarry(*reg) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
 }
