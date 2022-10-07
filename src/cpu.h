@@ -72,6 +72,9 @@ public:
 	void OR(uint8_t reg);
 	void XOR(uint8_t reg);
 	void CP(uint8_t reg);
+
+	void INC(uint8_t* reg);
+	void DEC(uint8_t * reg);
 	
 	void Opcode0x00();
 	void Opcode0x01();

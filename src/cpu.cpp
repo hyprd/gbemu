@@ -118,7 +118,7 @@ void CPU::LD(uint8_t& reg, uint16_t address) {
 
 void CPU::ADD(uint8_t reg) {
 	uint8_t eval = static_cast<uint8_t>(A + reg);
-	(eval == 0) ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
+	eval == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
 	didHalfCarry(reg) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
 	didCarry(reg) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
@@ -143,7 +143,7 @@ void CPU::ADD_SP() {
 void CPU::ADC(uint8_t reg) {
 	uint8_t carry = mmu->getBit(F, FLAG_C);
 	uint8_t eval = static_cast<uint8_t>(A + reg + carry);
-	(eval == 0) ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
+	eval == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
 	didHalfCarry(reg + carry) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
 	didCarry(reg + carry) ? setFlag(FLAG_C) : setFlag(FLAG_C);
@@ -201,6 +201,20 @@ void CPU::CP(uint8_t reg) {
 	setFlag(FLAG_N);
 	didHalfCarry(reg) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
 	didCarry(reg) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
+}
+
+void CPU::INC(uint8_t *reg) {
+	(*reg) = (*reg + 1);
+	*reg == 1 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
+	clearFlag(FLAG_N);
+	didHalfCarry(*reg) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
+}
+
+void CPU::DEC(uint8_t* reg) {
+	(*reg) = (*reg - 1);
+	*reg == 1 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
+	clearFlag(FLAG_N);
+	didHalfCarry(*reg) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
 }
 
 void CPU::bindOpcodes() {
