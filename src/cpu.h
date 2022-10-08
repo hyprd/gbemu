@@ -75,8 +75,12 @@ public:
 
 	void INC(uint8_t* reg);
 	void INC(Register reg);
+	void INC_SP();
 	void DEC(uint8_t * reg);
 	void DEC(Register reg);
+	void DEC_SP();
+
+	void RLCA();
 	
 	void Opcode0x00();
 	void Opcode0x01();
