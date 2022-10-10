@@ -73,15 +73,26 @@ public:
 	void XOR(uint8_t reg);
 	void CP(uint8_t reg);
 
-	void INC(uint8_t* reg);
+	void INC(uint8_t * reg);
 	void INC(Register reg);
 	void INC_SP();
 	void DEC(uint8_t * reg);
 	void DEC(Register reg);
 	void DEC_SP();
 
+	void RLA();
+	void RLC(uint8_t * reg);
+	void RRA();
 	void RLCA();
-	
+	void RRCA();
+	void RL(uint8_t * reg);
+	void RRC(uint8_t * reg);
+	void RR(uint8_t * reg);
+	void SLA(uint8_t * reg);
+	void SRA(uint8_t * reg);
+	void SRL(uint8_t * reg);
+	void SWAP(uint8_t * reg);
+
 	void Opcode0x00();
 	void Opcode0x01();
 	void Opcode0x02();

@@ -233,6 +233,188 @@ void CPU::DEC_SP() {
 	sp -= 1;
 }
 
+/* BIT SHIFT FUNCTIONS*/
+
+void CPU::RLCA() {
+	uint8_t bit = mmu->getBit(A, 7);
+	A <<= 1;
+	clearFlag(FLAG_Z);
+	clearFlag(FLAG_N);
+	clearFlag(FLAG_H);
+	if (bit) {
+		mmu->setBit(A, 0);
+		setFlag(FLAG_C);
+	}
+	else {
+		mmu->clearBit(A, 0);
+		clearFlag(FLAG_C);
+	}
+}
+
+void CPU::RRCA() {
+	uint8_t bit = mmu->getBit(A, 0);
+	A >>= 1;
+	clearFlag(FLAG_Z);
+	clearFlag(FLAG_N);
+	clearFlag(FLAG_H);
+	if (bit) {
+		mmu->setBit(A, 7);
+		setFlag(FLAG_C);
+	}
+	else {
+		mmu->clearBit(A, 7);
+		clearFlag(FLAG_C);
+	}
+}
+
+/* 
+	The only difference between this function and RLCA
+	is to ignore assigning bit 7 to bit 0. The 'C' in 
+	'RLCA' is circular!
+*/
+void CPU::RLA() {
+	uint8_t bit = mmu->getBit(A, 7);
+	A <<= 1;
+	clearFlag(FLAG_Z);
+	clearFlag(FLAG_N);
+	clearFlag(FLAG_H);
+	if (bit) {
+		setFlag(FLAG_C);
+	}
+	else {
+		clearFlag(FLAG_C);
+	}
+}
+
+void CPU::RRA() {
+	uint8_t bit = mmu->getBit(A, 0);
+	A >>= 1;
+	clearFlag(FLAG_Z);
+	clearFlag(FLAG_N);
+	clearFlag(FLAG_H);
+	if (bit) {
+		setFlag(FLAG_C);
+	}
+	else {
+		clearFlag(FLAG_C);
+	}
+}
+
+void CPU::RLC(uint8_t * reg) {
+	uint8_t bit = mmu->getBit(*reg, 7);
+	*reg <<= 1;
+	// Set flag Z if operand is 0
+	*reg ? clearFlag(FLAG_Z) : setFlag(FLAG_Z);
+	if (bit) {
+		setFlag(FLAG_C);
+		mmu->setBit(*reg, 0);
+	}
+	else {
+		clearFlag(FLAG_C);
+		mmu->clearBit(*reg, 0);
+	}
+}
+
+void CPU::RL(uint8_t * reg) {
+	uint8_t bit = mmu->getBit(*reg, 7);
+	uint8_t carry = getFlag(FLAG_C);
+	carry ? mmu->setBit(*reg, 0) : mmu->clearBit(*reg, 0);
+	*reg <<= 1;
+	*reg ? clearFlag(FLAG_Z) : setFlag(FLAG_Z);
+	clearFlag(FLAG_N);
+	clearFlag(FLAG_H);
+	if (bit) {
+		setFlag(FLAG_C);
+	}
+	else {
+		clearFlag(FLAG_C);
+	}
+}
+
+void CPU::RR(uint8_t * reg) {
+	uint8_t bit = mmu->getBit(*reg, 0);
+	uint8_t carry = getFlag(FLAG_C);
+	carry ? mmu->setBit(*reg, 7) : mmu->clearBit(*reg, 7);
+	*reg >>= 1;
+	*reg ? clearFlag(FLAG_Z) : setFlag(FLAG_Z);
+	clearFlag(FLAG_N);
+	clearFlag(FLAG_H);
+	if (bit) {
+		setFlag(FLAG_C);
+	}
+	else {
+		clearFlag(FLAG_C);
+	}
+}
+
+void CPU::RRC(uint8_t* reg) {
+	uint8_t bit = mmu->getBit(*reg, 0);
+	*reg >>= 1;
+	// Set flag Z if operand is 0
+	*reg ? clearFlag(FLAG_Z) : setFlag(FLAG_Z);
+	if (bit) {
+		setFlag(FLAG_C);
+		mmu->setBit(*reg, 7);
+	}
+	else {
+		clearFlag(FLAG_C);
+		mmu->clearBit(*reg, 7);
+	}
+}
+
+void CPU::SLA(uint8_t * reg) {
+	*reg <<= 1;
+	uint8_t bit = mmu->getBit(*reg, 7);
+	mmu->clearBit(*reg, 0);
+	*reg ? clearFlag(FLAG_Z) : setFlag(FLAG_Z);
+	clearFlag(FLAG_N);
+	clearFlag(FLAG_H);
+	if (bit) {
+		setFlag(FLAG_C);
+	}
+	else {
+		clearFlag(FLAG_C);
+	}
+}
+
+void CPU::SRA(uint8_t * reg) {
+	*reg >>= 1;
+	uint8_t bit = mmu->getBit(*reg, 0);
+	// Bit 7 is unchanged
+	*reg ? clearFlag(FLAG_Z) : setFlag(FLAG_Z);
+	clearFlag(FLAG_N);
+	clearFlag(FLAG_H);
+	if (bit) {
+		setFlag(FLAG_C);
+	}
+	else {
+		clearFlag(FLAG_C);
+	}
+}
+
+void CPU::SRL(uint8_t * reg) {
+	*reg >>= 1;
+	uint8_t bit = mmu->getBit(*reg, 0);
+	mmu->clearBit(*reg, 7);
+	*reg ? clearFlag(FLAG_Z) : setFlag(FLAG_Z);
+	clearFlag(FLAG_N);
+	clearFlag(FLAG_H);
+	if (bit) {
+		setFlag(FLAG_C);
+	}
+	else {
+		clearFlag(FLAG_C);
+	}
+}
+
+void CPU::SWAP(uint8_t * reg) {
+	((*reg & 0x0F) << 4) | ((*reg & 0xF0) >> 4);
+	*reg ? clearFlag(FLAG_Z) : setFlag(FLAG_Z);
+	clearFlag(FLAG_N);
+	clearFlag(FLAG_H);
+	clearFlag(FLAG_C);
+}
+
 void CPU::bindOpcodes() {
 	this->opcodes[0x00] = &CPU::Opcode0x00;
 	this->opcodes[0x01] = &CPU::Opcode0x01;
