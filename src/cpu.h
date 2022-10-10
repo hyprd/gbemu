@@ -94,6 +94,10 @@ public:
 	void SWAP(uint8_t * reg);
 	
 	void BIT(uint8_t bit, Register reg);
+	void SET(uint8_t bit, Register reg);
+	void RES(uint8_t bit, Register reg);
+
+	void JP();
 
 	void Opcode0x00();
 	void Opcode0x01();

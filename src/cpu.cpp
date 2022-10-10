@@ -416,11 +416,28 @@ void CPU::SWAP(uint8_t * reg) {
 }
 
 /* BIT OPERATIONS */
+
 void CPU::BIT(uint8_t bit, Register reg) {
 	uint8_t bit = mmu->getBit(reg.getRegister(), bit);
 	bit == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
 	setFlag(FLAG_H);
+}
+
+void CPU::SET(uint8_t bit, Register reg) {
+	uint8_t r = reg.getRegister();
+	r |= 1UL << bit;
+}
+
+void CPU::RES(uint8_t bit, Register reg) {
+	uint8_t r = reg.getRegister();
+	r &= ~(1UL << bit);
+}
+
+/* JUMP INSTRUCTIONS */
+
+void CPU::JP() {
+
 }
 
 void CPU::bindOpcodes() {
