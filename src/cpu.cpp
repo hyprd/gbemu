@@ -408,7 +408,7 @@ void CPU::SRL(uint8_t * reg) {
 }
 
 void CPU::SWAP(uint8_t * reg) {
-	((*reg & 0x0F) << 4) | ((*reg & 0xF0) >> 4);
+	*reg = ((*reg & 0x0F) << 4) | ((*reg & 0xF0) >> 4);
 	*reg ? clearFlag(FLAG_Z) : setFlag(FLAG_Z);
 	clearFlag(FLAG_N);
 	clearFlag(FLAG_H);
