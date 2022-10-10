@@ -415,6 +415,14 @@ void CPU::SWAP(uint8_t * reg) {
 	clearFlag(FLAG_C);
 }
 
+/* BIT OPERATIONS */
+void CPU::BIT(uint8_t bit, Register reg) {
+	uint8_t bit = mmu->getBit(reg.getRegister(), bit);
+	bit == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
+	clearFlag(FLAG_N);
+	setFlag(FLAG_H);
+}
+
 void CPU::bindOpcodes() {
 	this->opcodes[0x00] = &CPU::Opcode0x00;
 	this->opcodes[0x01] = &CPU::Opcode0x01;

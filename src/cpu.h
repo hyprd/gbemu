@@ -92,6 +92,8 @@ public:
 	void SRA(uint8_t * reg);
 	void SRL(uint8_t * reg);
 	void SWAP(uint8_t * reg);
+	
+	void BIT(uint8_t bit, Register reg);
 
 	void Opcode0x00();
 	void Opcode0x01();
