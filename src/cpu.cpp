@@ -109,6 +109,12 @@ void CPU::PUSHSTACK16(uint16_t word) {
 	sp -= 2;
 }
 
+uint16_t CPU::READSTACK() {
+	uint16_t low = mmu->get(sp++);
+	uint16_t high = mmu->get(sp++);
+	return mmu->formWord(low, high);
+}
+
 /* ASSIGNMENT FUNCTIONS */
 
 void CPU::LD(uint8_t& reg1, uint8_t reg2) {
@@ -485,6 +491,29 @@ void CPU::CALL() {
 	uint16_t imm = mmu->formWord(mmu->get(pc), mmu->get(pc + 1));
 	pc += 2;
 	PUSHSTACK16(imm);
+}
+
+void CPU::RET() {
+	pc = READSTACK();
+}
+
+void CPU::RETI() {
+	PrintMessage(Debug, "Implement RETI!");
+}
+
+void CPU::RST(uint8_t vec) {
+	PUSHSTACK16(pc);
+	pc = RSTJumpVectors[vec];
+}
+
+void CPU::DAA() {
+	PrintMessage(Debug, "Implement DAA!");
+}
+
+void CPU::CPL() {
+	A = ~A;
+	setFlag(FLAG_N);
+	setFlag(FLAG_H);
 }
 
 void CPU::bindOpcodes() {

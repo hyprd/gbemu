@@ -33,6 +33,8 @@ public:
 	unsigned long int pc;
 	unsigned long int cycles;
 
+	uint8_t RSTJumpVectors[8] = { 0x0000, 0x0008, 0x0010, 0x0018, 0x0020, 0x0028, 0x0030, 0x0038 };
+
 	void initialize();
 	void cycle();
 	void execute(uint8_t inst);
@@ -103,7 +105,14 @@ public:
 	void JR(uint8_t jmp);
 
 	void CALL();
+	void RET();
+	void RETI();
+	void RST(uint8_t vec);
 	void PUSHSTACK16(uint16_t word);
+	uint16_t READSTACK();
+	
+	void DAA();
+	void CPL();
 
 	void Opcode0x00();
 	void Opcode0x01();
