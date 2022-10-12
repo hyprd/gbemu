@@ -98,6 +98,12 @@ public:
 	void RES(uint8_t bit, Register reg);
 
 	void JP();
+	void JP_HL();
+	void JP(int condition);
+	void JR(uint8_t jmp);
+
+	void CALL();
+	void PUSHSTACK16(uint16_t word);
 
 	void Opcode0x00();
 	void Opcode0x01();

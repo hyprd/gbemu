@@ -100,6 +100,15 @@ void CPU::clearFlag(uint8_t flag) {
 	mmu->clearBit(F, flag);
 }
 
+void CPU::PUSHSTACK16(uint16_t word) {
+	uint8_t high = static_cast<uint8_t>((word & 0xFF00));
+	uint8_t low = static_cast<uint8_t>((word & 0x00FF));
+	mmu->set(--sp, high);
+	sp -= 2;
+	mmu->set(sp, low);
+	sp -= 2;
+}
+
 /* ASSIGNMENT FUNCTIONS */
 
 void CPU::LD(uint8_t& reg1, uint8_t reg2) {
@@ -437,7 +446,45 @@ void CPU::RES(uint8_t bit, Register reg) {
 /* JUMP INSTRUCTIONS */
 
 void CPU::JP() {
+	uint16_t low = mmu->get(pc++);
+	uint16_t high = mmu->get(pc) << 8;
+	pc = (low | high) - 1;
+}
 
+void CPU::JP_HL() {
+	pc = HL.getRegister();
+}
+
+void CPU::JP(int condition) {
+	bool match = false;
+	switch (condition) {
+	case 0:
+		getFlag(FLAG_Z) ? match : match = true;
+	case 1:
+		getFlag(FLAG_Z) ? match = true : match;
+	case 2:
+		getFlag(FLAG_C) ? match : match = true;
+	case 3:
+		getFlag(FLAG_C) ? match = true : match;
+	default:
+		break;
+	}
+	if (match) {
+		JP();
+	}
+	else {
+		pc++;
+	}
+}
+
+void CPU::JR(uint8_t jmp) {
+	pc += pc + jmp;
+}
+
+void CPU::CALL() {
+	uint16_t imm = mmu->formWord(mmu->get(pc), mmu->get(pc + 1));
+	pc += 2;
+	PUSHSTACK16(imm);
 }
 
 void CPU::bindOpcodes() {

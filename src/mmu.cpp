@@ -39,3 +39,7 @@ void MMU::toggleBit(uint8_t& byte, uint8_t bit) {
 uint8_t MMU::getBit(uint8_t byte, uint8_t bit) {
     return !!(byte >> bit);
 }
+
+uint16_t MMU::formWord(uint8_t high, uint8_t low) {
+    return static_cast<uint16_t>(high << 8 | low & 0x00FF);
+}
