@@ -121,7 +121,7 @@ uint16_t CPU::READSTACK() {
 	return mmu->formWord(low, high);
 }
 
-void CPU::POPSTACK(Register& reg) {
+void CPU::POPSTACK(Register reg) {
 	uint8_t low = mmu->get(sp);
 	sp++;
 	reg.low = &low;

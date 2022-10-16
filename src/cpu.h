@@ -112,7 +112,7 @@ public:
 	void RST(uint8_t vec);
 	void PUSHSTACK16(uint16_t word);
 	uint16_t READSTACK();
-	void POPSTACK(Register& reg);
+	void POPSTACK(Register reg);
 	void POPSTACK16();
 	
 	void DAA();
