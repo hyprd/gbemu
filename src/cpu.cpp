@@ -433,8 +433,8 @@ void CPU::SWAP(uint8_t * reg) {
 /* BIT OPERATIONS */
 
 void CPU::BIT(uint8_t bit, Register reg) {
-	uint8_t bit = mmu->getBit(reg.getRegister(), bit);
-	bit == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
+	uint8_t b = mmu->getBit(reg.getRegister(), bit);
+	b == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
 	setFlag(FLAG_H);
 }
@@ -514,6 +514,38 @@ void CPU::CPL() {
 	A = ~A;
 	setFlag(FLAG_N);
 	setFlag(FLAG_H);
+}
+
+void CPU::NOP() {
+	pc++;
+}
+
+void CPU::CCF() {
+	setFlag(F ^= 1UL << FLAG_C);
+}
+
+void CPU::SCF() {
+	setFlag(FLAG_C);
+}
+
+void CPU::DI() {
+	ime = false;
+}
+
+void CPU::EI() {
+	ime = true;
+}
+
+void CPU::HALT() {
+	halted = true;
+}
+
+void CPU::STOP() {
+	// Stop the system clock and the oscillator circuit
+	// Stop the LCD controller
+	// Before STOP is called:
+	//	- Reset interrupt enable flags
+	//	- I/O P10 - P13 
 }
 
 void CPU::bindOpcodes() {

@@ -53,6 +53,7 @@ public:
 
 	bool extended = false;
 	bool halted = false;
+	bool ime = false;
 
 	typedef void (CPU::*Opcode)(void);
 	Opcode opcodes[0x100];
@@ -113,6 +114,13 @@ public:
 	
 	void DAA();
 	void CPL();
+	void NOP();
+	void CCF();
+	void SCF();
+	void DI();
+	void EI();
+	void HALT();
+	void STOP();
 
 	void Opcode0x00();
 	void Opcode0x01();
