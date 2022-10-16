@@ -1110,7 +1110,8 @@ void CPU::Opcode0x05() {
 }
 
 void CPU::Opcode0x06() {
-	LD(B, mmu->get(pc++));
+	LD(B, mmu->get(pc));
+	pc++;
 }
 
 void CPU::Opcode0x07() {
@@ -1147,7 +1148,7 @@ void CPU::Opcode0x0E() {
 }
 
 void CPU::Opcode0x0F() {
-	RRC(&A);
+	RRCA();
 }
 
 void CPU::Opcode0x10() {
@@ -1176,11 +1177,12 @@ void CPU::Opcode0x15() {
 }
 
 void CPU::Opcode0x16() {
-	LD(D, mmu->get(pc++));
+	LD(D, mmu->get(pc));
+	pc++;
 }
 
 void CPU::Opcode0x17() {
-	RL(&A);
+	RLA();
 }
 
 void CPU::Opcode0x18() {
@@ -1217,7 +1219,7 @@ void CPU::Opcode0x1F() {
 }
 
 void CPU::Opcode0x20() {
-	if (!mmu->getBit(F, FLAG_Z)) {
+	if (!getFlag(FLAG_Z)) {
 		JR();
 	}
 	else {
@@ -1257,7 +1259,7 @@ void CPU::Opcode0x27() {
 }
 
 void CPU::Opcode0x28() {
-	if (mmu->getBit(F, FLAG_Z)) {
+	if (getFlag(FLAG_Z)) {
 		JR();
 	}
 	else {
@@ -1287,7 +1289,8 @@ void CPU::Opcode0x2D() {
 }
 
 void CPU::Opcode0x2E() {
-	LD(L, mmu->get(pc++));
+	LD(L, mmu->get(pc));
+	pc++;
 }
 
 void CPU::Opcode0x2F() {
@@ -1295,7 +1298,7 @@ void CPU::Opcode0x2F() {
 }
 
 void CPU::Opcode0x30() {
-	if (!mmu->getBit(F, FLAG_C)) {
+	if (!getFlag(FLAG_C)) {
 		JR();
 	}
 	else {
@@ -1328,7 +1331,8 @@ void CPU::Opcode0x35() {
 }
 
 void CPU::Opcode0x36() {
-	LD(HL.getRegister(), mmu->get(pc++));
+	LD(HL.getRegister(), mmu->get(pc));
+	pc++;
 }
 
 void CPU::Opcode0x37() {
@@ -1336,7 +1340,7 @@ void CPU::Opcode0x37() {
 }
 
 void CPU::Opcode0x38() {
-	if (mmu->getBit(F, FLAG_C)) {
+	if (getFlag(FLAG_C)) {
 		JR();
 	}
 	else {
@@ -1366,7 +1370,8 @@ void CPU::Opcode0x3D() {
 }
 
 void CPU::Opcode0x3E() {
-	LD(A, mmu->get(pc++));
+	LD(A, mmu->get(pc));
+	pc++;
 }
 
 void CPU::Opcode0x3F() {
@@ -1887,8 +1892,11 @@ void CPU::Opcode0xBF() {
 }
 
 void CPU::Opcode0xC0() {
-	if (!mmu->getBit(F, FLAG_Z)) {
-		POPSTACK16();
+	if (!getFlag(FLAG_Z)) {
+		RET();
+	}
+	else {
+		pc++;
 	}
 }
 
@@ -1897,7 +1905,7 @@ void CPU::Opcode0xC1() {
 }
 
 void CPU::Opcode0xC2() {
-	if (!mmu->getBit(F, FLAG_Z)) {
+	if (!getFlag(FLAG_Z)) {
 		JP();
 	}
 	else {
@@ -1910,12 +1918,11 @@ void CPU::Opcode0xC3() {
 }
 
 void CPU::Opcode0xC4() {
-	if (!mmu->getBit(F, FLAG_Z)) {
+	if (!getFlag(FLAG_Z)) {
 		CALL();
 	}
 	else {
-		pc++;
-		pc++;
+		pc += 2;
 	}
 }
 
@@ -1933,7 +1940,7 @@ void CPU::Opcode0xC7() {
 }
 
 void CPU::Opcode0xC8() {
-	if (mmu->getBit(F, FLAG_Z)) {
+	if (getFlag(FLAG_Z)) {
 		RET();
 	}
 }
@@ -1943,7 +1950,7 @@ void CPU::Opcode0xC9() {
 }
 
 void CPU::Opcode0xCA() {
-	if (mmu->getBit(F, FLAG_Z)) {
+	if (getFlag(FLAG_Z)) {
 		JP();
 	}
 	else {
@@ -1956,7 +1963,7 @@ void CPU::Opcode0xCB() {
 }
 
 void CPU::Opcode0xCC() {
-	if (mmu->getBit(F, FLAG_Z)) {
+	if (getFlag(FLAG_Z)) {
 		CALL();
 	}
 	else {
@@ -1978,7 +1985,7 @@ void CPU::Opcode0xCF() {
 }
 
 void CPU::Opcode0xD0() {
-	if (!mmu->getBit(F, FLAG_C)) {
+	if (!getFlag(FLAG_C)) {
 		RET();
 	}
 }
@@ -1988,7 +1995,7 @@ void CPU::Opcode0xD1() {
 }
 
 void CPU::Opcode0xD2() {
-	if (!mmu->getBit(F, FLAG_C)) {
+	if (!getFlag(FLAG_C)) {
 		JP();
 	}
 	else {
@@ -2001,7 +2008,7 @@ void CPU::Opcode0xD3() {
 }
 
 void CPU::Opcode0xD4() {
-	if (!mmu->getBit(F, FLAG_C)) {
+	if (!getFlag(FLAG_C)) {
 		CALL();
 	}
 	else {
@@ -2023,7 +2030,7 @@ void CPU::Opcode0xD7() {
 }
 
 void CPU::Opcode0xD8() {
-	if (mmu->getBit(F, FLAG_C)) {
+	if (getFlag(FLAG_C)) {
 		RET();
 	}
 }
@@ -2034,7 +2041,7 @@ void CPU::Opcode0xD9() {
 }
 
 void CPU::Opcode0xDA() {
-	if (mmu->getBit(F, FLAG_C)) {
+	if (getFlag(FLAG_C)) {
 		JP();
 	}
 	else {
@@ -2047,7 +2054,7 @@ void CPU::Opcode0xDB() {
 }
 
 void CPU::Opcode0xDC() {
-	if (mmu->getBit(F, FLAG_C)) {
+	if (getFlag(FLAG_C)) {
 		CALL();
 	}
 	else {
@@ -2200,7 +2207,7 @@ void CPU::Opcode0xFB() {
 }
 
 void CPU::Opcode0xFC() {
-
+	
 }
 
 void CPU::Opcode0xFD() {
