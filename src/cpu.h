@@ -22,10 +22,11 @@ public:
 	MMU* mmu;
 
 	uint8_t A, B, C, D, E, F, H, L;
-	uint8_t FLAG_Z = 7;
-	uint8_t FLAG_N = 6;
-	uint8_t FLAG_H = 5;
-	uint8_t FLAG_C = 4;
+	uint8_t FLAG_Z = 0;
+	uint8_t FLAG_N = 1;
+	uint8_t FLAG_H = 2;
+	uint8_t FLAG_C = 3;
+	std::bitset<4> f;
 
 	Register AF, BC, DE, HL;
 	
@@ -64,7 +65,7 @@ public:
 	void LD(uint8_t& reg, uint16_t address); // LD X,(YZ), LD X,d16
 
 	void ADD(uint8_t reg);
-	void ADD_HL(Register reg);
+	void ADD_HL(uint16_t v);
 	void ADD_SP();
 	void ADC(uint8_t reg);
 
@@ -103,7 +104,7 @@ public:
 	void JP();
 	void JP_HL();
 	void JP(int condition);
-	void JR(uint8_t jmp);
+	void JR();
 
 	void CALL();
 	void RET();
@@ -111,6 +112,8 @@ public:
 	void RST(uint8_t vec);
 	void PUSHSTACK16(uint16_t word);
 	uint16_t READSTACK();
+	void POPSTACK(Register& reg);
+	void POPSTACK16();
 	
 	void DAA();
 	void CPL();

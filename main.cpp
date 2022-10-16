@@ -44,6 +44,7 @@ int main(int argc, char* argv[])
             if (event.type == SDL_QUIT)
                 end = true;
         }
+        
         cpu->cycle();
         ImGui_ImplSDLRenderer_NewFrame();
         ImGui_ImplSDL2_NewFrame();
@@ -55,7 +56,13 @@ int main(int argc, char* argv[])
         ImGui::Text("HL %02X", cpu->HL.getRegister());
         ImGui::Text("SP %02X", cpu->sp);
         ImGui::Text("PC %02X", cpu->pc);
-        ImGui::Text("Cycles %02X", cpu->cycles);
+        ImGui::Text("Cycles %2X", cpu->cycles);
+        ImGui::End();
+        ImGui::Begin("FLAGS");
+        ImGui::Text("Z %X", cpu->getFlag(cpu->FLAG_Z));
+        ImGui::Text("N %X", cpu->getFlag(cpu->FLAG_N));
+        ImGui::Text("H %X", cpu->getFlag(cpu->FLAG_H));
+        ImGui::Text("C %X", cpu->getFlag(cpu->FLAG_C));
         ImGui::End();
         ImGui::Render();
         ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);

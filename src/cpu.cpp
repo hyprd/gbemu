@@ -43,7 +43,9 @@ void CPU::initialize() {
 	HL.setRegister(0x014D);
 	// Set stack pointer, program counter and cycles members to 
 	// default values
-	sp = pc = cycles = 0x0000;
+	pc = cycles = 0x0000;
+	sp = 0xFFFE;
+	f = F;
 }
 
 void CPU::cycle() {
@@ -93,11 +95,13 @@ uint8_t CPU::getFlag(uint8_t flag) {
 }
 
 void CPU::setFlag(uint8_t flag) {
-	mmu->setBit(F, flag);
+	f.set(flag);
+	F = f.to_ulong();
 }
 
 void CPU::clearFlag(uint8_t flag) {
-	mmu->clearBit(F, flag);
+	f.reset(flag);
+	F = f.to_ulong();
 }
 
 void CPU::PUSHSTACK16(uint16_t word) {
@@ -110,9 +114,25 @@ void CPU::PUSHSTACK16(uint16_t word) {
 }
 
 uint16_t CPU::READSTACK() {
-	uint16_t low = mmu->get(sp++);
-	uint16_t high = mmu->get(sp++);
+	uint16_t low = mmu->get(sp);
+	sp++;
+	uint16_t high = mmu->get(sp);
+	sp++;
 	return mmu->formWord(low, high);
+}
+
+void CPU::POPSTACK(Register& reg) {
+	uint8_t low = mmu->get(sp);
+	sp++;
+	reg.low = &low;
+	uint8_t high = mmu->get(sp);
+	sp++;
+	reg.high = &high;
+}
+
+void CPU::POPSTACK16() {
+	pc = mmu->formWord(mmu->get(sp), mmu->get(sp + 1));
+	sp += 2;
 }
 
 /* ASSIGNMENT FUNCTIONS */
@@ -139,11 +159,11 @@ void CPU::ADD(uint8_t reg) {
 	didCarry(reg) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
 }
 
-void CPU::ADD_HL(Register reg) {
-	HL.setRegister(HL.getRegister() + reg.getRegister());
-	clearFlag(FLAG_N);
-	didHalfCarry16(HL.getRegister(), reg.getRegister()) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
-	didCarry16(HL.getRegister(), reg.getRegister()) ? setFlag(FLAG_C): clearFlag(FLAG_C);
+void CPU::ADD_HL(uint16_t v) {
+	HL.setRegister(HL.getRegister() + v);
+	/*clearFlag(FLAG_N);
+	didHalfCarry16(HL.getRegister(), v) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
+	didCarry16(HL.getRegister(), v) ? setFlag(FLAG_C): clearFlag(FLAG_C);*/
 }
 
 void CPU::ADD_SP() {
@@ -483,8 +503,8 @@ void CPU::JP(int condition) {
 	}
 }
 
-void CPU::JR(uint8_t jmp) {
-	pc += pc + jmp;
+void CPU::JR() {
+	pc += 1 + (static_cast <int8_t> (mmu->get(pc + 1)));
 }
 
 void CPU::CALL() {
@@ -1063,262 +1083,1139 @@ void CPU::bindOpcodes() {
 	this->extendedOpcodes[0xFE] = &CPU::extendedOpcode0xFE;
 	this->extendedOpcodes[0xFF] = &CPU::extendedOpcode0xFF;
 }
-void CPU::Opcode0x00(){}
-void CPU::Opcode0x01(){}
-void CPU::Opcode0x02(){}
-void CPU::Opcode0x03(){}
-void CPU::Opcode0x04(){}
-void CPU::Opcode0x05(){}
-void CPU::Opcode0x06(){}
-void CPU::Opcode0x07(){}
-void CPU::Opcode0x08(){}
-void CPU::Opcode0x09(){}
-void CPU::Opcode0x0A(){}
-void CPU::Opcode0x0B(){}
-void CPU::Opcode0x0C(){}
-void CPU::Opcode0x0D(){}
-void CPU::Opcode0x0E(){}
-void CPU::Opcode0x0F(){}
-void CPU::Opcode0x10(){}
-void CPU::Opcode0x11(){}
-void CPU::Opcode0x12(){}
-void CPU::Opcode0x13(){}
-void CPU::Opcode0x14(){}
-void CPU::Opcode0x15(){}
-void CPU::Opcode0x16(){}
-void CPU::Opcode0x17(){}
-void CPU::Opcode0x18(){}
-void CPU::Opcode0x19(){}
-void CPU::Opcode0x1A(){}
-void CPU::Opcode0x1B(){}
-void CPU::Opcode0x1C(){}
-void CPU::Opcode0x1D(){}
-void CPU::Opcode0x1E(){}
-void CPU::Opcode0x1F(){}
-void CPU::Opcode0x20(){}
-void CPU::Opcode0x21(){}
-void CPU::Opcode0x22(){}
-void CPU::Opcode0x23(){}
-void CPU::Opcode0x24(){}
-void CPU::Opcode0x25(){}
-void CPU::Opcode0x26(){}
-void CPU::Opcode0x27(){}
-void CPU::Opcode0x28(){}
-void CPU::Opcode0x29(){}
-void CPU::Opcode0x2A(){}
-void CPU::Opcode0x2B(){}
-void CPU::Opcode0x2C(){}
-void CPU::Opcode0x2D(){}
-void CPU::Opcode0x2E(){}
-void CPU::Opcode0x2F(){}
-void CPU::Opcode0x30(){}
-void CPU::Opcode0x31(){}
-void CPU::Opcode0x32(){}
-void CPU::Opcode0x33(){}
-void CPU::Opcode0x34(){}
-void CPU::Opcode0x35(){}
-void CPU::Opcode0x36(){}
-void CPU::Opcode0x37(){}
-void CPU::Opcode0x38(){}
-void CPU::Opcode0x39(){}
-void CPU::Opcode0x3A(){}
-void CPU::Opcode0x3B(){}
-void CPU::Opcode0x3C(){}
-void CPU::Opcode0x3D(){}
-void CPU::Opcode0x3E(){}
-void CPU::Opcode0x3F(){}
-void CPU::Opcode0x40(){}
-void CPU::Opcode0x41(){}
-void CPU::Opcode0x42(){}
-void CPU::Opcode0x43(){}
-void CPU::Opcode0x44(){}
-void CPU::Opcode0x45(){}
-void CPU::Opcode0x46(){}
-void CPU::Opcode0x47(){}
-void CPU::Opcode0x48(){}
-void CPU::Opcode0x49(){}
-void CPU::Opcode0x4A(){}
-void CPU::Opcode0x4B(){}
-void CPU::Opcode0x4C(){}
-void CPU::Opcode0x4D(){}
-void CPU::Opcode0x4E(){}
-void CPU::Opcode0x4F(){}
-void CPU::Opcode0x50(){}
-void CPU::Opcode0x51(){}
-void CPU::Opcode0x52(){}
-void CPU::Opcode0x53(){}
-void CPU::Opcode0x54(){}
-void CPU::Opcode0x55(){}
-void CPU::Opcode0x56(){}
-void CPU::Opcode0x57(){}
-void CPU::Opcode0x58(){}
-void CPU::Opcode0x59(){}
-void CPU::Opcode0x5A(){}
-void CPU::Opcode0x5B(){}
-void CPU::Opcode0x5C(){}
-void CPU::Opcode0x5D(){}
-void CPU::Opcode0x5E(){}
-void CPU::Opcode0x5F(){}
-void CPU::Opcode0x60(){}
-void CPU::Opcode0x61(){}
-void CPU::Opcode0x62(){}
-void CPU::Opcode0x63(){}
-void CPU::Opcode0x64(){}
-void CPU::Opcode0x65(){}
-void CPU::Opcode0x66(){}
-void CPU::Opcode0x67(){}
-void CPU::Opcode0x68(){}
-void CPU::Opcode0x69(){}
-void CPU::Opcode0x6A(){}
-void CPU::Opcode0x6B(){}
-void CPU::Opcode0x6C(){}
-void CPU::Opcode0x6D(){}
-void CPU::Opcode0x6E(){}
-void CPU::Opcode0x6F(){}
-void CPU::Opcode0x70(){}
-void CPU::Opcode0x71(){}
-void CPU::Opcode0x72(){}
-void CPU::Opcode0x73(){}
-void CPU::Opcode0x74(){}
-void CPU::Opcode0x75(){}
-void CPU::Opcode0x76(){}
-void CPU::Opcode0x77(){}
-void CPU::Opcode0x78(){}
-void CPU::Opcode0x79(){}
-void CPU::Opcode0x7A(){}
-void CPU::Opcode0x7B(){}
-void CPU::Opcode0x7C(){}
-void CPU::Opcode0x7D(){}
-void CPU::Opcode0x7E(){}
-void CPU::Opcode0x7F(){}
-void CPU::Opcode0x80(){}
-void CPU::Opcode0x81(){}
-void CPU::Opcode0x82(){}
-void CPU::Opcode0x83(){}
-void CPU::Opcode0x84(){}
-void CPU::Opcode0x85(){}
-void CPU::Opcode0x86(){}
-void CPU::Opcode0x87(){}
-void CPU::Opcode0x88(){}
-void CPU::Opcode0x89(){}
-void CPU::Opcode0x8A(){}
-void CPU::Opcode0x8B(){}
-void CPU::Opcode0x8C(){}
-void CPU::Opcode0x8D(){}
-void CPU::Opcode0x8E(){}
-void CPU::Opcode0x8F(){}
-void CPU::Opcode0x90(){}
-void CPU::Opcode0x91(){}
-void CPU::Opcode0x92(){}
-void CPU::Opcode0x93(){}
-void CPU::Opcode0x94(){}
-void CPU::Opcode0x95(){}
-void CPU::Opcode0x96(){}
-void CPU::Opcode0x97(){}
-void CPU::Opcode0x98(){}
-void CPU::Opcode0x99(){}
-void CPU::Opcode0x9A(){}
-void CPU::Opcode0x9B(){}
-void CPU::Opcode0x9C(){}
-void CPU::Opcode0x9D(){}
-void CPU::Opcode0x9E(){}
-void CPU::Opcode0x9F(){}
-void CPU::Opcode0xA0(){}
-void CPU::Opcode0xA1(){}
-void CPU::Opcode0xA2(){}
-void CPU::Opcode0xA3(){}
-void CPU::Opcode0xA4(){}
-void CPU::Opcode0xA5(){}
-void CPU::Opcode0xA6(){}
-void CPU::Opcode0xA7(){}
-void CPU::Opcode0xA8(){}
-void CPU::Opcode0xA9(){}
-void CPU::Opcode0xAA(){}
-void CPU::Opcode0xAB(){}
-void CPU::Opcode0xAC(){}
-void CPU::Opcode0xAD(){}
-void CPU::Opcode0xAE(){}
-void CPU::Opcode0xAF(){}
-void CPU::Opcode0xB0(){}
-void CPU::Opcode0xB1(){}
-void CPU::Opcode0xB2(){}
-void CPU::Opcode0xB3(){}
-void CPU::Opcode0xB4(){}
-void CPU::Opcode0xB5(){}
-void CPU::Opcode0xB6(){}
-void CPU::Opcode0xB7(){}
-void CPU::Opcode0xB8(){}
-void CPU::Opcode0xB9(){}
-void CPU::Opcode0xBA(){}
-void CPU::Opcode0xBB(){}
-void CPU::Opcode0xBC(){}
-void CPU::Opcode0xBD(){}
-void CPU::Opcode0xBE(){}
-void CPU::Opcode0xBF(){}
-void CPU::Opcode0xC0(){}
-void CPU::Opcode0xC1(){}
-void CPU::Opcode0xC2(){}
-void CPU::Opcode0xC3(){}
-void CPU::Opcode0xC4(){}
-void CPU::Opcode0xC5(){}
-void CPU::Opcode0xC6(){}
-void CPU::Opcode0xC7(){}
-void CPU::Opcode0xC8(){}
-void CPU::Opcode0xC9(){}
-void CPU::Opcode0xCA(){}
-void CPU::Opcode0xCB(){}
-void CPU::Opcode0xCC(){}
-void CPU::Opcode0xCD(){}
-void CPU::Opcode0xCE(){}
-void CPU::Opcode0xCF(){}
-void CPU::Opcode0xD0(){}
-void CPU::Opcode0xD1(){}
-void CPU::Opcode0xD2(){}
-void CPU::Opcode0xD3(){}
-void CPU::Opcode0xD4(){}
-void CPU::Opcode0xD5(){}
-void CPU::Opcode0xD6(){}
-void CPU::Opcode0xD7(){}
-void CPU::Opcode0xD8(){}
-void CPU::Opcode0xD9(){}
-void CPU::Opcode0xDA(){}
-void CPU::Opcode0xDB(){}
-void CPU::Opcode0xDC(){}
-void CPU::Opcode0xDD(){}
-void CPU::Opcode0xDE(){}
-void CPU::Opcode0xDF(){}
-void CPU::Opcode0xE0(){}
-void CPU::Opcode0xE1(){}
-void CPU::Opcode0xE2(){}
-void CPU::Opcode0xE3(){}
-void CPU::Opcode0xE4(){}
-void CPU::Opcode0xE5(){}
-void CPU::Opcode0xE6(){}
-void CPU::Opcode0xE7(){}
-void CPU::Opcode0xE8(){}
-void CPU::Opcode0xE9(){}
-void CPU::Opcode0xEA(){}
-void CPU::Opcode0xEB(){}
-void CPU::Opcode0xEC(){}
-void CPU::Opcode0xED(){}
-void CPU::Opcode0xEE(){}
-void CPU::Opcode0xEF(){}
-void CPU::Opcode0xF0(){}
-void CPU::Opcode0xF1(){}
-void CPU::Opcode0xF2(){}
-void CPU::Opcode0xF3(){}
-void CPU::Opcode0xF4(){}
-void CPU::Opcode0xF5(){}
-void CPU::Opcode0xF6(){}
-void CPU::Opcode0xF7(){}
-void CPU::Opcode0xF8(){}
-void CPU::Opcode0xF9(){}
-void CPU::Opcode0xFA(){}
-void CPU::Opcode0xFB(){}
-void CPU::Opcode0xFC(){}
-void CPU::Opcode0xFD(){}
-void CPU::Opcode0xFE(){}
-void CPU::Opcode0xFF(){}
+
+void CPU::Opcode0x00() {
+	NOP();
+}
+
+void CPU::Opcode0x01() {
+	BC.setRegister(mmu->formWord(mmu->get(pc), mmu->get(pc + 1)));
+	pc += 2;
+}
+
+void CPU::Opcode0x02() {
+	LD(BC.getRegister(), A);
+}
+
+void CPU::Opcode0x03() {
+	INC(BC);
+}
+
+void CPU::Opcode0x04() {
+	INC(&B);
+}
+
+void CPU::Opcode0x05() {
+	DEC(&B);
+}
+
+void CPU::Opcode0x06() {
+	LD(B, mmu->get(pc++));
+}
+
+void CPU::Opcode0x07() {
+	RLC(&A);
+}
+void CPU::Opcode0x08() {
+	LD(mmu->get(mmu->formWord(mmu->get(pc), mmu->get(pc + 1))), sp);
+	pc += 2;
+}
+
+void CPU::Opcode0x09() {
+	ADD_HL(BC.getRegister());
+}
+
+void CPU::Opcode0x0A() {
+	LD(A, mmu->get(BC.getRegister()));
+}
+
+void CPU::Opcode0x0B() {
+	DEC(BC);
+}
+
+void CPU::Opcode0x0C() {
+	INC(&C);
+}
+
+void CPU::Opcode0x0D() {
+	DEC(&C);
+}
+
+void CPU::Opcode0x0E() {
+	LD(C, mmu->get(pc));
+	pc++;
+}
+
+void CPU::Opcode0x0F() {
+	RRC(&A);
+}
+
+void CPU::Opcode0x10() {
+	STOP();
+}
+
+void CPU::Opcode0x11() {
+	DE.setRegister(mmu->formWord(mmu->get(pc), mmu->get(pc + 1)));
+	pc += 2;
+}
+
+void CPU::Opcode0x12() {
+	LD(mmu->get(DE.getRegister()), A);
+}
+
+void CPU::Opcode0x13() {
+	INC(DE);
+}
+
+void CPU::Opcode0x14() {
+	INC(&D);
+}
+
+void CPU::Opcode0x15() {
+	DEC(&D);
+}
+
+void CPU::Opcode0x16() {
+	LD(D, mmu->get(pc++));
+}
+
+void CPU::Opcode0x17() {
+	RL(&A);
+}
+
+void CPU::Opcode0x18() {
+	JR();
+}
+
+void CPU::Opcode0x19() {
+	ADD_HL(DE.getRegister());
+}
+
+void CPU::Opcode0x1A() {
+	LD(A, DE.getRegister());
+}
+
+void CPU::Opcode0x1B() {
+	DEC(DE);
+}
+
+void CPU::Opcode0x1C() {
+	INC(&E);
+}
+
+void CPU::Opcode0x1D() {
+	DEC(&E);
+}
+
+void CPU::Opcode0x1E() {
+	LD(E, mmu->get(pc));
+	pc++;
+}
+
+void CPU::Opcode0x1F() {
+	RR(&A);
+}
+
+void CPU::Opcode0x20() {
+	if (!mmu->getBit(F, FLAG_Z)) {
+		JR();
+	}
+	else {
+		pc++;
+	}
+}
+
+void CPU::Opcode0x21() {
+	HL.setRegister(mmu->formWord(mmu->get(pc), mmu->get(pc + 1)));
+	pc += 2;
+}
+
+void CPU::Opcode0x22() {
+	LD(HL.getRegister(), A);
+	HL.setRegister(HL.getRegister() + 1);
+}
+
+void CPU::Opcode0x23() {
+	INC(HL);
+}
+
+void CPU::Opcode0x24() {
+	INC(&H);
+}
+
+void CPU::Opcode0x25() {
+	DEC(&H);
+}
+
+void CPU::Opcode0x26() {
+	LD(H, mmu->get(pc));
+	pc++;
+}
+
+void CPU::Opcode0x27() {
+	DAA();
+}
+
+void CPU::Opcode0x28() {
+	if (mmu->getBit(F, FLAG_Z)) {
+		JR();
+	}
+	else {
+		pc++;
+	}
+}
+
+void CPU::Opcode0x29() {
+	ADD_HL(HL.getRegister());
+}
+
+void CPU::Opcode0x2A() {
+	LD(A, HL.getRegister());
+	HL.setRegister(HL.getRegister() + 1);
+}
+
+void CPU::Opcode0x2B() {
+	DEC(HL);
+}
+
+void CPU::Opcode0x2C() {
+	INC(&L);
+}
+
+void CPU::Opcode0x2D() {
+	DEC(&L);
+}
+
+void CPU::Opcode0x2E() {
+	LD(L, mmu->get(pc++));
+}
+
+void CPU::Opcode0x2F() {
+	CPL();
+}
+
+void CPU::Opcode0x30() {
+	if (!mmu->getBit(F, FLAG_C)) {
+		JR();
+	}
+	else {
+		pc++;
+	}
+}
+
+void CPU::Opcode0x31() {
+	this->sp = mmu->formWord(mmu->get(pc), mmu->get(pc + 1));
+	pc += 2;
+}
+
+void CPU::Opcode0x32() {
+	LD(HL.getRegister(), A);
+	HL.setRegister(HL.getRegister() - 1);
+}
+
+void CPU::Opcode0x33() {
+	INC_SP();
+}
+
+void CPU::Opcode0x34() {
+	uint8_t reg = mmu->get(HL.getRegister());
+	INC(&reg);
+}
+
+void CPU::Opcode0x35() {
+	uint8_t reg = mmu->get(HL.getRegister());
+	DEC(&reg);
+}
+
+void CPU::Opcode0x36() {
+	LD(HL.getRegister(), mmu->get(pc++));
+}
+
+void CPU::Opcode0x37() {
+	SCF();
+}
+
+void CPU::Opcode0x38() {
+	if (mmu->getBit(F, FLAG_C)) {
+		JR();
+	}
+	else {
+		pc++;
+	}
+}
+
+void CPU::Opcode0x39() {
+	ADD_HL(sp);
+}
+
+void CPU::Opcode0x3A() {
+	LD(A, HL.getRegister());
+	HL.setRegister(HL.getRegister() - 1);
+}
+
+void CPU::Opcode0x3B() {
+	DEC_SP();
+}
+
+void CPU::Opcode0x3C() {
+	INC(&A);
+}
+
+void CPU::Opcode0x3D() {
+	DEC(&A);
+}
+
+void CPU::Opcode0x3E() {
+	LD(A, mmu->get(pc++));
+}
+
+void CPU::Opcode0x3F() {
+	CCF();
+}
+
+void CPU::Opcode0x40() {
+	LD(B, B);
+}
+
+void CPU::Opcode0x41() {
+	LD(B, C);
+}
+
+void CPU::Opcode0x42() {
+	LD(B, D);
+}
+
+void CPU::Opcode0x43() {
+	LD(B, E);
+}
+
+void CPU::Opcode0x44() {
+	LD(B, H);
+}
+
+void CPU::Opcode0x45() {
+	LD(B, L);
+}
+
+void CPU::Opcode0x46() {
+	LD(B, HL.getRegister());
+}
+
+void CPU::Opcode0x47() {
+	LD(B, A);
+}
+
+void CPU::Opcode0x48() {
+	LD(C, B);
+}
+
+void CPU::Opcode0x49() {
+	LD(C, C);
+}
+
+void CPU::Opcode0x4A() {
+	LD(C, D);
+}
+
+void CPU::Opcode0x4B() {
+	LD(C, E);
+}
+
+void CPU::Opcode0x4C() {
+	LD(C, H);
+}
+
+void CPU::Opcode0x4D() {
+	LD(C, L);
+}
+
+void CPU::Opcode0x4E() {
+	LD(E, HL.getRegister());
+}
+
+void CPU::Opcode0x4F() {
+	LD(C, A);
+}
+
+void CPU::Opcode0x50() {
+	LD(D, B);
+}
+
+void CPU::Opcode0x51() {
+	LD(D, C);
+}
+
+void CPU::Opcode0x52() {
+	LD(D, D);
+}
+
+void CPU::Opcode0x53() {
+	LD(D, E);
+}
+
+void CPU::Opcode0x54() {
+	LD(D, H);
+}
+
+void CPU::Opcode0x55() {
+	LD(D, L);
+}
+
+void CPU::Opcode0x56() {
+	LD(D, HL.getRegister());
+}
+
+void CPU::Opcode0x57() {
+	LD(D, A);
+}
+
+void CPU::Opcode0x58() {
+	LD(E, B);
+}
+
+void CPU::Opcode0x59() {
+	LD(E, C);
+}
+
+void CPU::Opcode0x5A() {
+	LD(E, D);
+}
+
+void CPU::Opcode0x5B() {
+	LD(E, E);
+}
+
+void CPU::Opcode0x5C() {
+	LD(E, H);
+}
+
+void CPU::Opcode0x5D() {
+	LD(E, L);
+}
+
+void CPU::Opcode0x5E() {
+	LD(E, HL.getRegister());
+}
+
+void CPU::Opcode0x5F() {
+	LD(E, A);
+}
+
+void CPU::Opcode0x60() {
+	LD(H, B);
+}
+
+void CPU::Opcode0x61() {
+	LD(H, C);
+}
+
+void CPU::Opcode0x62() {
+	LD(H, D);
+}
+
+void CPU::Opcode0x63() {
+	LD(H, E);
+}
+
+void CPU::Opcode0x64() {
+	LD(H, H);
+}
+
+void CPU::Opcode0x65() {
+	LD(H, L);
+}
+
+void CPU::Opcode0x66() {
+	LD(H, HL.getRegister());
+}
+
+void CPU::Opcode0x67() {
+	LD(H, A);
+}
+
+void CPU::Opcode0x68() {
+	LD(L, B);
+}
+
+void CPU::Opcode0x69() {
+	LD(L, C);
+}
+
+void CPU::Opcode0x6A() {
+	LD(L, D);
+}
+
+void CPU::Opcode0x6B() {
+	LD(L, E);
+}
+
+void CPU::Opcode0x6C() {
+	LD(L, H);
+}
+
+void CPU::Opcode0x6D() {
+	LD(L, L);
+}
+
+void CPU::Opcode0x6E() {
+	LD(L, HL.getRegister());
+}
+
+void CPU::Opcode0x6F() {
+	LD(L, A);
+}
+
+void CPU::Opcode0x70() {
+	LD(HL.getRegister(), B);
+}
+
+void CPU::Opcode0x71() {
+	LD(HL.getRegister(), C);
+}
+
+void CPU::Opcode0x72() {
+	LD(HL.getRegister(), D);
+}
+
+void CPU::Opcode0x73() {
+	LD(HL.getRegister(), E);
+}
+
+void CPU::Opcode0x74() {
+	LD(HL.getRegister(), H);
+}
+
+void CPU::Opcode0x75() {
+	LD(HL.getRegister(), L);
+}
+
+void CPU::Opcode0x76() {
+	HALT();
+}
+
+void CPU::Opcode0x77() {
+	LD(HL.getRegister(), A);
+}
+
+void CPU::Opcode0x78() {
+	LD(A, B);
+}
+
+void CPU::Opcode0x79() {
+	LD(A, C);
+}
+
+void CPU::Opcode0x7A() {
+	LD(A, D);
+}
+
+void CPU::Opcode0x7B() {
+	LD(A, E);
+}
+
+void CPU::Opcode0x7C() {
+	LD(A, H);
+}
+
+void CPU::Opcode0x7D() {
+	LD(A, L);
+}
+
+void CPU::Opcode0x7E() {
+	LD(A, HL.getRegister());
+}
+
+void CPU::Opcode0x7F() {
+	LD(A, A);
+}
+
+void CPU::Opcode0x80() {
+	ADD(B);
+}
+
+void CPU::Opcode0x81() {
+	ADD(C);
+}
+
+void CPU::Opcode0x82() {
+	ADD(D);
+}
+
+void CPU::Opcode0x83() {
+	ADD(E);
+}
+
+void CPU::Opcode0x84() {
+	ADD(H);
+}
+
+void CPU::Opcode0x85() {
+	ADD(L);
+}
+
+void CPU::Opcode0x86() {
+	ADD(mmu->get(pc));
+	pc++;
+}
+
+void CPU::Opcode0x87() {
+	ADD(A);
+}
+
+void CPU::Opcode0x88() {
+	ADC(B);
+}
+
+void CPU::Opcode0x89() {
+	ADC(C);
+}
+
+void CPU::Opcode0x8A() {
+	ADC(D);
+}
+
+void CPU::Opcode0x8B() {
+	ADC(E);
+}
+
+void CPU::Opcode0x8C() {
+	ADC(H);
+}
+
+void CPU::Opcode0x8D() {
+	ADC(L);
+}
+
+void CPU::Opcode0x8E() {
+	ADC(mmu->get(HL.getRegister()));
+}
+
+void CPU::Opcode0x8F() {
+	ADC(A);
+}
+
+void CPU::Opcode0x90() {
+	SUB(B);
+}
+
+void CPU::Opcode0x91() {
+	SUB(C);
+}
+
+void CPU::Opcode0x92() {
+	SUB(D);
+}
+
+void CPU::Opcode0x93() {
+	SUB(E);
+}
+
+void CPU::Opcode0x94() {
+	SUB(H);
+}
+
+void CPU::Opcode0x95() {
+	SUB(L);
+}
+
+void CPU::Opcode0x96() {
+	SUB(mmu->get(HL.getRegister()));
+}
+
+void CPU::Opcode0x97() {
+	SUB(A);
+}
+
+void CPU::Opcode0x98() {
+	SBC(B);
+}
+
+void CPU::Opcode0x99() {
+	SBC(C);
+}
+
+void CPU::Opcode0x9A() {
+	SBC(D);
+}
+
+void CPU::Opcode0x9B() {
+	SBC(E);
+}
+
+void CPU::Opcode0x9C() {
+	SBC(H);
+}
+
+void CPU::Opcode0x9D() {
+	SBC(L);
+}
+
+void CPU::Opcode0x9E() {
+	SBC(mmu->get(HL.getRegister()));
+}
+
+void CPU::Opcode0x9F() {
+	SBC(A);
+}
+
+void CPU::Opcode0xA0() {
+	AND(B);
+}
+
+void CPU::Opcode0xA1() {
+	AND(C);
+}
+
+void CPU::Opcode0xA2() {
+	AND(D);
+}
+
+void CPU::Opcode0xA3() {
+	AND(E);
+}
+
+void CPU::Opcode0xA4() {
+	AND(H);
+}
+
+void CPU::Opcode0xA5() {
+	AND(L);
+}
+
+void CPU::Opcode0xA6() {
+	AND(mmu->get(HL.getRegister()));
+}
+
+void CPU::Opcode0xA7() {
+	AND(A);
+}
+
+void CPU::Opcode0xA8() {
+	XOR(B);
+}
+
+void CPU::Opcode0xA9() {
+	XOR(C);
+}
+
+void CPU::Opcode0xAA() {
+	XOR(D);
+}
+
+void CPU::Opcode0xAB() {
+	XOR(E);
+}
+
+void CPU::Opcode0xAC() {
+	XOR(H);
+}
+
+void CPU::Opcode0xAD() {
+	XOR(L);
+}
+
+void CPU::Opcode0xAE() {
+	XOR(mmu->get(HL.getRegister()));
+}
+
+void CPU::Opcode0xAF() {
+	XOR(A);
+}
+
+void CPU::Opcode0xB0() {
+	OR(B);
+}
+
+void CPU::Opcode0xB1() {
+	OR(C);
+}
+
+void CPU::Opcode0xB2() {
+	OR(D);
+}
+
+void CPU::Opcode0xB3() {
+	OR(E);
+}
+
+void CPU::Opcode0xB4() {
+	OR(H);
+}
+
+void CPU::Opcode0xB5() {
+	OR(L);
+}
+
+void CPU::Opcode0xB6() {
+	OR(mmu->get(HL.getRegister()));
+}
+
+void CPU::Opcode0xB7() {
+	OR(A);
+}
+
+void CPU::Opcode0xB8() {
+	CP(B);
+}
+
+void CPU::Opcode0xB9() {
+	CP(C);
+}
+
+void CPU::Opcode0xBA() {
+	CP(D);
+}
+
+void CPU::Opcode0xBB() {
+	CP(E);
+}
+
+void CPU::Opcode0xBC() {
+	CP(H);
+}
+
+void CPU::Opcode0xBD() {
+	CP(L);
+}
+
+void CPU::Opcode0xBE() {
+	CP(mmu->get(HL.getRegister()));
+}
+
+void CPU::Opcode0xBF() {
+	CP(A);
+}
+
+void CPU::Opcode0xC0() {
+	if (!mmu->getBit(F, FLAG_Z)) {
+		POPSTACK16();
+	}
+}
+
+void CPU::Opcode0xC1() {
+	POPSTACK(BC);
+}
+
+void CPU::Opcode0xC2() {
+	if (!mmu->getBit(F, FLAG_Z)) {
+		JP();
+	}
+	else {
+		pc += 2;
+	}
+}
+
+void CPU::Opcode0xC3() {
+	JP();
+}
+
+void CPU::Opcode0xC4() {
+	if (!mmu->getBit(F, FLAG_Z)) {
+		CALL();
+	}
+	else {
+		pc++;
+		pc++;
+	}
+}
+
+void CPU::Opcode0xC5() {
+	PUSHSTACK16(BC.getRegister());
+}
+
+void CPU::Opcode0xC6() {
+	ADD(mmu->get(pc));
+	pc++;
+}
+
+void CPU::Opcode0xC7() {
+	RST(0);
+}
+
+void CPU::Opcode0xC8() {
+	if (mmu->getBit(F, FLAG_Z)) {
+		RET();
+	}
+}
+
+void CPU::Opcode0xC9() {
+	RET();
+}
+
+void CPU::Opcode0xCA() {
+	if (mmu->getBit(F, FLAG_Z)) {
+		JP();
+	}
+	else {
+		pc += 2;
+	}
+}
+
+void CPU::Opcode0xCB() {
+	extended = true;
+}
+
+void CPU::Opcode0xCC() {
+	if (mmu->getBit(F, FLAG_Z)) {
+		CALL();
+	}
+	else {
+		pc += 2;
+	}
+}
+
+void CPU::Opcode0xCD() {
+	CALL();
+}
+
+void CPU::Opcode0xCE() {
+	ADC(mmu->get(pc));
+	pc++;
+}
+
+void CPU::Opcode0xCF() {
+	RST(1);
+}
+
+void CPU::Opcode0xD0() {
+	if (!mmu->getBit(F, FLAG_C)) {
+		RET();
+	}
+}
+
+void CPU::Opcode0xD1() {
+	POPSTACK(DE);
+}
+
+void CPU::Opcode0xD2() {
+	if (!mmu->getBit(F, FLAG_C)) {
+		JP();
+	}
+	else {
+		pc += 2;
+	}
+}
+
+void CPU::Opcode0xD3() {
+
+}
+
+void CPU::Opcode0xD4() {
+	if (!mmu->getBit(F, FLAG_C)) {
+		CALL();
+	}
+	else {
+		pc += 2;
+	}
+}
+
+void CPU::Opcode0xD5() {
+	POPSTACK(DE);
+}
+
+void CPU::Opcode0xD6() {
+	SUB(mmu->get(pc));
+	pc++;
+}
+
+void CPU::Opcode0xD7() {
+	RST(2);
+}
+
+void CPU::Opcode0xD8() {
+	if (mmu->getBit(F, FLAG_C)) {
+		RET();
+	}
+}
+
+void CPU::Opcode0xD9() {
+	RET();
+	ime = true;
+}
+
+void CPU::Opcode0xDA() {
+	if (mmu->getBit(F, FLAG_C)) {
+		JP();
+	}
+	else {
+		pc += 2;
+	}
+}
+
+void CPU::Opcode0xDB() {
+
+}
+
+void CPU::Opcode0xDC() {
+	if (mmu->getBit(F, FLAG_C)) {
+		CALL();
+	}
+	else {
+		pc += 2;
+	}
+}
+
+void CPU::Opcode0xDD() {
+
+}
+
+void CPU::Opcode0xDE() {
+	SBC(mmu->get(pc));
+	pc++;
+}
+
+void CPU::Opcode0xDF() {
+	RST(3);
+}
+
+void CPU::Opcode0xE0() {
+	LD(static_cast<uint16_t>(0xFF00 + mmu->get(pc)), A);
+	pc++;
+}
+
+void CPU::Opcode0xE1() {
+	POPSTACK(HL);
+}
+
+void CPU::Opcode0xE2() {
+	LD(static_cast<uint16_t>(0xFF00 + C), A);
+}
+
+void CPU::Opcode0xE3() {
+
+}
+
+void CPU::Opcode0xE4() {
+
+}
+
+void CPU::Opcode0xE5() {
+	PUSHSTACK16(HL.getRegister());
+}
+
+void CPU::Opcode0xE6() {
+	AND(mmu->get(pc));
+	pc++;
+}
+
+void CPU::Opcode0xE7() {
+	RST(4);
+}
+
+void CPU::Opcode0xE8() {
+	ADD_SP();
+}
+
+void CPU::Opcode0xE9() {
+	JP_HL();
+}
+
+void CPU::Opcode0xEA() {
+	mmu->set(mmu->formWord(mmu->get(pc), mmu->get(pc + 1)), A);
+	pc += 2;
+}
+
+void CPU::Opcode0xEB() {
+
+}
+
+void CPU::Opcode0xEC() {
+
+}
+
+void CPU::Opcode0xED() {
+
+}
+
+void CPU::Opcode0xEE() {
+	XOR(mmu->get(pc));
+	pc++;
+}
+
+void CPU::Opcode0xEF() {
+	RST(7);
+}
+
+void CPU::Opcode0xF0() {
+	LD(A, static_cast<uint16_t>(0xFF00 + mmu->get(pc)));
+	pc++;
+}
+
+void CPU::Opcode0xF1() {
+	POPSTACK(AF);
+}
+
+void CPU::Opcode0xF2() {
+	LD(A, static_cast<uint16_t>(0xFF00 + C));
+}
+
+void CPU::Opcode0xF3() {
+	DI();
+}
+
+void CPU::Opcode0xF4() {
+
+}
+
+void CPU::Opcode0xF5() {
+	PUSHSTACK16(AF.getRegister());
+}
+
+void CPU::Opcode0xF6() {
+	OR(mmu->get(pc));
+	pc++;
+}
+
+void CPU::Opcode0xF7() {
+	RST(6);
+}
+
+void CPU::Opcode0xF8() {
+	int16_t d = sp + mmu->get(pc);
+	HL.setRegister(sp + mmu->get(pc));
+	clearFlag(FLAG_Z);
+	clearFlag(FLAG_N);
+	if (d > 0x0FFF) {
+		setFlag(FLAG_H);
+		setFlag(FLAG_C);
+	}
+	else {
+		clearFlag(FLAG_H);
+		clearFlag(FLAG_C);
+	}
+	pc++;
+}
+
+void CPU::Opcode0xF9() {
+	sp = HL.getRegister();
+}
+
+void CPU::Opcode0xFA() {
+	LD(A, mmu->formWord(mmu->get(pc), mmu->get(pc + 1)));
+	pc += 2;
+}
+
+void CPU::Opcode0xFB() {
+	EI();
+}
+
+void CPU::Opcode0xFC() {
+
+}
+
+void CPU::Opcode0xFD() {
+
+}
+
+void CPU::Opcode0xFE() {
+	CP(mmu->get(pc));
+	pc++;
+}
+
+void CPU::Opcode0xFF() {
+	RST(7);
+}
+
 void CPU::extendedOpcode0x00(){}
 void CPU::extendedOpcode0x01(){}
 void CPU::extendedOpcode0x02(){}
