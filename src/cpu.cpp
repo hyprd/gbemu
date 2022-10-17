@@ -41,9 +41,41 @@ void CPU::initialize() {
 	BC.setRegister(0x0013);
 	DE.setRegister(0x00D8);
 	HL.setRegister(0x014D);
+	mmu->set(0xFF05, 0x00);
+	mmu->set(0xFF06, 0x00);
+	mmu->set(0xFF07, 0x00);
+	mmu->set(0xFF10, 0x80);
+	mmu->set(0xFF11, 0xBF);
+	mmu->set(0xFF12, 0xF3);
+	mmu->set(0xFF14, 0xBF);
+	mmu->set(0xFF16, 0x3F);
+	mmu->set(0xFF17, 0x00);
+	mmu->set(0xFF19, 0xBF);
+	mmu->set(0xFF1A, 0x7F);
+	mmu->set(0xFF1B, 0xFF);
+	mmu->set(0xFF1C, 0x9F);
+	mmu->set(0xFF1E, 0xBF);
+	mmu->set(0xFF20, 0xFF);
+	mmu->set(0xFF21, 0x00);
+	mmu->set(0xFF22, 0x00);
+	mmu->set(0xFF23, 0xBF);
+	mmu->set(0xFF24, 0x77);
+	mmu->set(0xFF25, 0xF3);
+	mmu->set(0xFF26, 0xF1);
+	mmu->set(0xFF40, 0x91);
+	mmu->set(0xFF42, 0x00);
+	mmu->set(0xFF43, 0x00);
+	mmu->set(0xFF45, 0x00);
+	mmu->set(0xFF47, 0xFC);
+	mmu->set(0xFF48, 0xFF);
+	mmu->set(0xFF49, 0xFF);
+	mmu->set(0xFF4A, 0x00);
+	mmu->set(0xFF4B, 0x00);
+	mmu->set(0xFFFF, 0x00);
 	// Set stack pointer, program counter and cycles members to 
 	// default values
-	pc = cycles = 0x0000;
+	pc = 0x100;
+	cycles = 0x0000;
 	sp = 0xFFFE;
 	f = F;
 }
@@ -161,9 +193,9 @@ void CPU::ADD(uint8_t reg) {
 
 void CPU::ADD_HL(uint16_t v) {
 	HL.setRegister(HL.getRegister() + v);
-	/*clearFlag(FLAG_N);
+	clearFlag(FLAG_N);
 	didHalfCarry16(HL.getRegister(), v) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
-	didCarry16(HL.getRegister(), v) ? setFlag(FLAG_C): clearFlag(FLAG_C);*/
+	didCarry16(HL.getRegister(), v) ? setFlag(FLAG_C): clearFlag(FLAG_C);
 }
 
 void CPU::ADD_SP() {
@@ -472,9 +504,9 @@ void CPU::RES(uint8_t bit, Register reg) {
 /* JUMP INSTRUCTIONS */
 
 void CPU::JP() {
-	uint16_t low = mmu->get(pc++);
-	uint16_t high = mmu->get(pc) << 8;
-	pc = (low | high) - 1;
+	uint16_t low = mmu->get(pc + 1);
+	uint16_t high = mmu->get(pc + 2) << 8;
+	pc = high | low;
 }
 
 void CPU::JP_HL() {
@@ -537,7 +569,6 @@ void CPU::CPL() {
 }
 
 void CPU::NOP() {
-	pc++;
 }
 
 void CPU::CCF() {
