@@ -7,9 +7,9 @@ Register::Register() {
 
 Register::~Register() {}
 
-Register::Register(uint8_t* l, uint8_t* h) {
-	low = l;
+Register::Register(uint8_t* h, uint8_t* l) {
 	high = h;
+	low = l;
 }
 
 uint16_t Register::getRegister() {
@@ -17,8 +17,8 @@ uint16_t Register::getRegister() {
 }
 
 void Register::setRegister(uint16_t value) {
-	*low = value & 0x00FF;
 	*high = value >> 8;
+	*low = static_cast<uint8_t>(value & 0x00FF);
 }
 
 CPU::CPU(MMU * mmu) {
@@ -85,8 +85,9 @@ void CPU::cycle() {
 }
 
 void CPU::execute(uint8_t inst) {
+	dumpMemory();
 	if (!extended) {
-		(this->*opcodes[inst])();
+	(this->*opcodes[inst])();
 		// add cycles
 	}
 	else {
@@ -96,6 +97,10 @@ void CPU::execute(uint8_t inst) {
 	}
 	if (!halted) pc++;
 	// handle interrupt function
+}
+
+void CPU::dumpMemory() {
+	printf("A: %02X F: %02X B: %02X C: %02X D: %02X E: %02X H: %02X L: %02X SP: %04X PC: %04X \n", *AF.high, *AF.low, *BC.high, *BC.low, *DE.high, *DE.low, *HL.high, *HL.low, sp, pc);
 }
 
 bool CPU::didCarry(uint8_t reg) {
@@ -506,7 +511,7 @@ void CPU::RES(uint8_t bit, Register reg) {
 void CPU::JP() {
 	uint16_t low = mmu->get(pc + 1);
 	uint16_t high = mmu->get(pc + 2) << 8;
-	pc = high | low;
+	pc = (high | low) - 1;
 }
 
 void CPU::JP_HL() {

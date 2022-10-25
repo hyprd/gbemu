@@ -40,6 +40,7 @@ public:
 	void cycle();
 	void execute(uint8_t inst);
 	void bindOpcodes();
+	void dumpMemory();
 	
 	bool didCarry(uint8_t reg);
 	bool didHalfCarry(uint8_t reg);
