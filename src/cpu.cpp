@@ -88,7 +88,7 @@ void CPU::execute(uint8_t inst) {
 	dumpMemory();
 	if (!extended) {
 	(this->*opcodes[inst])();
-		// add cycles
+	// add cycles
 	}
 	else {
 		(this->*extendedOpcodes[inst])();
@@ -1264,7 +1264,7 @@ void CPU::Opcode0x20() {
 }
 
 void CPU::Opcode0x21() {
-	HL.setRegister(mmu->formWord(mmu->get(pc), mmu->get(pc + 1)));
+	HL.setRegister(mmu->formWord(mmu->get(pc + 2), mmu->get(pc + 1)));
 	pc += 2;
 }
 
