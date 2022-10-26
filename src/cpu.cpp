@@ -77,7 +77,8 @@ void CPU::initialize() {
 	pc = 0x100;
 	cycles = 0x0000;
 	sp = 0xFFFE;
-	f = F;
+	std::string f = "debug.txt";
+	dbg = std::ofstream (f, std::ios::binary);
 }
 
 void CPU::cycle() {
@@ -85,10 +86,20 @@ void CPU::cycle() {
 }
 
 void CPU::execute(uint8_t inst) {
-	dumpMemory();
+	/* here lies the forbidden code  */
+	dbg << std::hex << std::uppercase << std::setfill('0') <<
+		" A: " << std::setw(2) << +*AF.high << 
+		" F: " << std::setw(2) << +*AF.low	<< 
+		" B: " << std::setw(2) << +*BC.high << 
+		" C: " << std::setw(2) << +*BC.low << 
+		" D: " << std::setw(2) << +*DE.high << 
+		" E: " << std::setw(2) << +*DE.low << 
+		" H: " << std::setw(2) << +*HL.high << 
+		" L: " << std::setw(2) << +*HL.low << 
+		" SP: " << std::setw(4) << +sp << 
+		" PC: " << std::setw(4) << +pc << "\n";
 	if (!extended) {
 	(this->*opcodes[inst])();
-	// add cycles
 	}
 	else {
 		(this->*extendedOpcodes[inst])();
@@ -99,16 +110,12 @@ void CPU::execute(uint8_t inst) {
 	// handle interrupt function
 }
 
-void CPU::dumpMemory() {
-	printf("A: %02X F: %02X B: %02X C: %02X D: %02X E: %02X H: %02X L: %02X SP: %04X PC: %04X \n", *AF.high, *AF.low, *BC.high, *BC.low, *DE.high, *DE.low, *HL.high, *HL.low, sp, pc);
-}
-
 bool CPU::didCarry(uint8_t reg) {
 	return (A + reg) > 0xFF;
 }
 
 bool CPU::didHalfCarry(uint8_t reg) {
-	return ((A & 0x0F) + (reg & 0x0F)) > 0x0F;
+	return ((A & 0x0F) + (+reg & 0x0F)) & 0x10;
 }
 
 bool CPU::didBorrow(uint8_t reg) {
@@ -132,13 +139,11 @@ uint8_t CPU::getFlag(uint8_t flag) {
 }
 
 void CPU::setFlag(uint8_t flag) {
-	f.set(flag);
-	F = f.to_ulong();
+	mmu->setBit(F, flag);
 }
 
 void CPU::clearFlag(uint8_t flag) {
-	f.reset(flag);
-	F = f.to_ulong();
+	mmu->clearBit(F, flag);
 }
 
 void CPU::PUSHSTACK16(uint16_t word) {
@@ -275,12 +280,12 @@ void CPU::CP(uint8_t reg) {
 	didCarry(reg) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
 }
 
-void CPU::INC(uint8_t* reg) {
-	(*reg) = (*reg + 1);
-	*reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
+void CPU::INC(uint8_t & reg) {
+	reg += 1;
+	reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
-	didHalfCarry(*reg) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
-}
+	didHalfCarry(reg) ? setFlag(FLAG_H) : clearFlag(FLAG_H);	
+ }
 
 void CPU::INC(Register reg) {
 	reg.setRegister(reg.getRegister() + 1);
@@ -290,11 +295,11 @@ void CPU::INC_SP() {
 	sp += 1;
 }
 
-void CPU::DEC(uint8_t* reg) {
-	(*reg) = (*reg - 1);
-	*reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
+void CPU::DEC(uint8_t & reg) {
+	reg -= 1;
+	reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
-	didHalfCarry(*reg) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
+	didHalfCarry(reg) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
 }
 
 void CPU::DEC(Register reg) {
@@ -1125,7 +1130,7 @@ void CPU::Opcode0x00() {
 }
 
 void CPU::Opcode0x01() {
-	BC.setRegister(mmu->formWord(mmu->get(pc), mmu->get(pc + 1)));
+	BC.setRegister(mmu->formWord(mmu->get(pc + 2), mmu->get(pc + 1)));
 	pc += 2;
 }
 
@@ -1138,11 +1143,11 @@ void CPU::Opcode0x03() {
 }
 
 void CPU::Opcode0x04() {
-	INC(&B);
+	INC(B);
 }
 
 void CPU::Opcode0x05() {
-	DEC(&B);
+	DEC(B);
 }
 
 void CPU::Opcode0x06() {
@@ -1171,15 +1176,15 @@ void CPU::Opcode0x0B() {
 }
 
 void CPU::Opcode0x0C() {
-	INC(&C);
+	INC(C);
 }
 
 void CPU::Opcode0x0D() {
-	DEC(&C);
+	DEC(C);
 }
 
 void CPU::Opcode0x0E() {
-	LD(C, mmu->get(pc));
+	LD(C, mmu->get(pc + 1));
 	pc++;
 }
 
@@ -1192,7 +1197,7 @@ void CPU::Opcode0x10() {
 }
 
 void CPU::Opcode0x11() {
-	DE.setRegister(mmu->formWord(mmu->get(pc), mmu->get(pc + 1)));
+	DE.setRegister(mmu->formWord(mmu->get(pc + 2), mmu->get(pc + 1)));
 	pc += 2;
 }
 
@@ -1205,11 +1210,11 @@ void CPU::Opcode0x13() {
 }
 
 void CPU::Opcode0x14() {
-	INC(&D);
+	INC(D);
 }
 
 void CPU::Opcode0x15() {
-	DEC(&D);
+	DEC(D);
 }
 
 void CPU::Opcode0x16() {
@@ -1238,11 +1243,11 @@ void CPU::Opcode0x1B() {
 }
 
 void CPU::Opcode0x1C() {
-	INC(&E);
+	INC(E);
 }
 
 void CPU::Opcode0x1D() {
-	DEC(&E);
+	DEC(E);
 }
 
 void CPU::Opcode0x1E() {
@@ -1278,11 +1283,11 @@ void CPU::Opcode0x23() {
 }
 
 void CPU::Opcode0x24() {
-	INC(&H);
+	INC(H);
 }
 
 void CPU::Opcode0x25() {
-	DEC(&H);
+	DEC(H);
 }
 
 void CPU::Opcode0x26() {
@@ -1317,11 +1322,11 @@ void CPU::Opcode0x2B() {
 }
 
 void CPU::Opcode0x2C() {
-	INC(&L);
+	INC(L);
 }
 
 void CPU::Opcode0x2D() {
-	DEC(&L);
+	DEC(L);
 }
 
 void CPU::Opcode0x2E() {
@@ -1343,7 +1348,7 @@ void CPU::Opcode0x30() {
 }
 
 void CPU::Opcode0x31() {
-	this->sp = mmu->formWord(mmu->get(pc), mmu->get(pc + 1));
+	this->sp = mmu->formWord(mmu->get(pc + 2), mmu->get(pc + 1));
 	pc += 2;
 }
 
@@ -1358,12 +1363,12 @@ void CPU::Opcode0x33() {
 
 void CPU::Opcode0x34() {
 	uint8_t reg = mmu->get(HL.getRegister());
-	INC(&reg);
+	INC(reg);
 }
 
 void CPU::Opcode0x35() {
 	uint8_t reg = mmu->get(HL.getRegister());
-	DEC(&reg);
+	DEC(reg);
 }
 
 void CPU::Opcode0x36() {
@@ -1398,11 +1403,11 @@ void CPU::Opcode0x3B() {
 }
 
 void CPU::Opcode0x3C() {
-	INC(&A);
+	INC(A);
 }
 
 void CPU::Opcode0x3D() {
-	DEC(&A);
+	DEC(A);
 }
 
 void CPU::Opcode0x3E() {

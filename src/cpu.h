@@ -22,14 +22,15 @@ public:
 	MMU* mmu;
 
 	uint8_t A, B, C, D, E, F, H, L;
-	uint8_t FLAG_Z = 0;
-	uint8_t FLAG_N = 1;
-	uint8_t FLAG_H = 2;
-	uint8_t FLAG_C = 3;
-	std::bitset<4> f;
+	uint8_t FLAG_Z = 7;
+	uint8_t FLAG_N = 6;
+	uint8_t FLAG_H = 5;
+	uint8_t FLAG_C = 4;
 
 	Register AF, BC, DE, HL;
-	
+
+	std::ofstream dbg;
+
 	unsigned long int sp;
 	unsigned long int pc;
 	unsigned long int cycles;
@@ -78,10 +79,10 @@ public:
 	void XOR(uint8_t reg);
 	void CP(uint8_t reg);
 
-	void INC(uint8_t * reg);
+	void INC(uint8_t & reg);
 	void INC(Register reg);
 	void INC_SP();
-	void DEC(uint8_t * reg);
+	void DEC(uint8_t & reg);
 	void DEC(Register reg);
 	void DEC_SP();
 

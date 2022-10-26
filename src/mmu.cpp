@@ -25,11 +25,15 @@ uint8_t MMU::get(uint16_t address) {
 }
 
 void MMU::setBit(uint8_t& byte, uint8_t bit) {
-    byte |= 1UL << bit;
+    std::bitset<8> b(byte);
+    b.set(bit);
+    byte = b.to_ulong();
 }
 
 void MMU::clearBit(uint8_t& byte, uint8_t bit) {
-    byte &= ~(1UL << bit);
+    std::bitset<8> b(byte);
+    b.reset(bit);
+    byte = b.to_ulong();
 }
 
 void MMU::toggleBit(uint8_t& byte, uint8_t bit) {

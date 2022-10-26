@@ -7,6 +7,7 @@
 #include <iostream>
 #include <fstream>
 #include <bitset>
+#include <iomanip>
 
 const int GB_HEIGHT = 160;
 const int GB_WIDTH = 144;
