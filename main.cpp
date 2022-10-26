@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
         }
         
         cpu->cycle();
-        ImGui_ImplSDLRenderer_NewFrame();
+        /*ImGui_ImplSDLRenderer_NewFrame();
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
         ImGui::Begin("CPU");
@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
         SDL_SetRenderDrawColor(renderer, (uint8_t)(clear_color.x * 255), (Uint8)(clear_color.y * 255), (Uint8)(clear_color.z * 255), (Uint8)(clear_color.w * 255));
         SDL_RenderClear(renderer);
         ImGui_ImplSDLRenderer_RenderDrawData(ImGui::GetDrawData());
-        SDL_RenderPresent(renderer);
+        SDL_RenderPresent(renderer);*/
     }
     PrintMessage(Info, "Closing application");
     // Clean and close

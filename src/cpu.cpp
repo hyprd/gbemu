@@ -88,7 +88,7 @@ void CPU::cycle() {
 void CPU::execute(uint8_t inst) {
 	/* here lies the forbidden code  */
 	dbg << std::hex << std::uppercase << std::setfill('0') <<
-		" A: " << std::setw(2) << +*AF.high << 
+		"A: " << std::setw(2) << +*AF.high << 
 		" F: " << std::setw(2) << +*AF.low	<< 
 		" B: " << std::setw(2) << +*BC.high << 
 		" C: " << std::setw(2) << +*BC.low << 
@@ -98,8 +98,12 @@ void CPU::execute(uint8_t inst) {
 		" L: " << std::setw(2) << +*HL.low << 
 		" SP: " << std::setw(4) << +sp << 
 		" PC: " << std::setw(4) << +pc << "\n";
+	if (++count == 243273) {
+		PrintMessage(Debug, "Operation completed");
+		dbg.close();
+	}
 	if (!extended) {
-	(this->*opcodes[inst])();
+		(this->*opcodes[inst])();
 	}
 	else {
 		(this->*extendedOpcodes[inst])();
@@ -115,7 +119,7 @@ bool CPU::didCarry(uint8_t reg) {
 }
 
 bool CPU::didHalfCarry(uint8_t reg) {
-	return ((A & 0x0F) + (+reg & 0x0F)) & 0x10;
+	return (reg & 0x0F) == 0x00;
 }
 
 bool CPU::didBorrow(uint8_t reg) {
@@ -582,7 +586,7 @@ void CPU::NOP() {
 }
 
 void CPU::CCF() {
-	setFlag(F ^= 1UL << FLAG_C);
+	mmu->toggleBit(F, FLAG_C);
 }
 
 void CPU::SCF() {

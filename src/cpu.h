@@ -30,6 +30,7 @@ public:
 	Register AF, BC, DE, HL;
 
 	std::ofstream dbg;
+	int count = 0;
 
 	unsigned long int sp;
 	unsigned long int pc;
@@ -41,7 +42,6 @@ public:
 	void cycle();
 	void execute(uint8_t inst);
 	void bindOpcodes();
-	void dumpMemory();
 	
 	bool didCarry(uint8_t reg);
 	bool didHalfCarry(uint8_t reg);

@@ -37,7 +37,9 @@ void MMU::clearBit(uint8_t& byte, uint8_t bit) {
 }
 
 void MMU::toggleBit(uint8_t& byte, uint8_t bit) {
-    byte ^= 1UL << bit;
+    std::bitset<8> b(byte);
+    b.flip(bit);
+    byte = b.to_ulong();
 }
 
 uint8_t MMU::getBit(uint8_t byte, uint8_t bit) {
