@@ -14,6 +14,8 @@ void MMU::load(std::string file) {
     auto size = rom.tellg();
     rom.seekg(std::ios::beg);
     rom.read((char *)memory, size);
+    rom.close();
+    for (int i = 0x0134; i < 0x0143; i++) title.push_back(memory[i]);
 }
 
 void MMU::set(uint16_t address, uint8_t value) {

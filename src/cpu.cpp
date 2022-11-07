@@ -82,7 +82,7 @@ void CPU::initialize() {
 }
 
 void CPU::cycle() {
-	execute(mmu->memory[pc]);
+	execute(mmu->memory[+pc]);
 }
 
 void CPU::execute(uint8_t inst) {
@@ -151,11 +151,8 @@ void CPU::clearFlag(uint8_t flag) {
 }
 
 void CPU::PUSHSTACK16(uint16_t word) {
-	uint8_t high = static_cast<uint8_t>((word & 0xFF00));
-	uint8_t low = static_cast<uint8_t>((word & 0x00FF));
-	mmu->set(--sp, high);
-	sp -= 2;
-	mmu->set(sp, low);
+	mmu->set(sp - 1, static_cast<uint8_t>(word & 0xFF00));
+	mmu->set(sp - 2, static_cast<uint8_t>(word & 0x00FF));
 	sp -= 2;
 }
 
@@ -288,7 +285,12 @@ void CPU::INC(uint8_t & reg) {
 	reg += 1;
 	reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
-	didHalfCarry(reg) ? setFlag(FLAG_H) : clearFlag(FLAG_H);	
+	if ((reg & 0x0F) == 0x0F) {
+		setFlag(FLAG_H);
+	}
+	else {
+		clearFlag(FLAG_H);
+	}
  }
 
 void CPU::INC(Register reg) {
@@ -302,8 +304,13 @@ void CPU::INC_SP() {
 void CPU::DEC(uint8_t & reg) {
 	reg -= 1;
 	reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
-	clearFlag(FLAG_N);
-	didHalfCarry(reg) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
+	setFlag(FLAG_N);
+	if ((reg & 0x0F) == 0x0F) {
+		setFlag(FLAG_H);
+	}
+	else {
+		clearFlag(FLAG_H);
+	}
 }
 
 void CPU::DEC(Register reg) {
@@ -569,7 +576,8 @@ void CPU::RETI() {
 
 void CPU::RST(uint8_t vec) {
 	PUSHSTACK16(pc);
-	pc = RSTJumpVectors[vec];
+	uint8_t pl = RSTJumpVectors[+vec];
+	pc = mmu->formWord(0, pl);
 }
 
 void CPU::DAA() {
