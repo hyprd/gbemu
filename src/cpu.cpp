@@ -151,8 +151,8 @@ void CPU::clearFlag(uint8_t flag) {
 }
 
 void CPU::PUSHSTACK16(uint16_t word) {
-	mmu->set(sp - 1, static_cast<uint8_t>(word & 0xFF00));
-	mmu->set(sp - 2, static_cast<uint8_t>(word & 0x00FF));
+	mmu->set(sp - 1, static_cast<uint8_t>((word >> 8) & 0xFF));
+	mmu->set(sp - 2, static_cast<uint8_t>(word & 0xFF));
 	sp -= 2;
 }
 
@@ -561,9 +561,9 @@ void CPU::JR() {
 }
 
 void CPU::CALL() {
-	uint16_t imm = mmu->formWord(mmu->get(pc), mmu->get(pc + 1));
-	pc += 2;
+	uint16_t imm = mmu->formWord(mmu->get(pc + 2), mmu->get(pc + 1));
 	PUSHSTACK16(imm);
+	pc = imm - 1;
 }
 
 void CPU::RET() {
@@ -1163,7 +1163,7 @@ void CPU::Opcode0x05() {
 }
 
 void CPU::Opcode0x06() {
-	LD(B, mmu->get(pc));
+	LD(B, mmu->get(pc + 1));
 	pc++;
 }
 
@@ -1230,7 +1230,7 @@ void CPU::Opcode0x15() {
 }
 
 void CPU::Opcode0x16() {
-	LD(D, mmu->get(pc));
+	LD(D, mmu->get(pc + 1));
 	pc++;
 }
 
@@ -1263,7 +1263,7 @@ void CPU::Opcode0x1D() {
 }
 
 void CPU::Opcode0x1E() {
-	LD(E, mmu->get(pc));
+	LD(E, mmu->get(pc + 1));
 	pc++;
 }
 
@@ -1303,7 +1303,7 @@ void CPU::Opcode0x25() {
 }
 
 void CPU::Opcode0x26() {
-	LD(H, mmu->get(pc));
+	LD(H, mmu->get(pc + 1));
 	pc++;
 }
 
@@ -1342,7 +1342,7 @@ void CPU::Opcode0x2D() {
 }
 
 void CPU::Opcode0x2E() {
-	LD(L, mmu->get(pc));
+	LD(L, mmu->get(pc + 1));
 	pc++;
 }
 
@@ -1423,7 +1423,7 @@ void CPU::Opcode0x3D() {
 }
 
 void CPU::Opcode0x3E() {
-	LD(A, mmu->get(pc));
+	LD(A, mmu->get(pc + 1));
 	pc++;
 }
 
