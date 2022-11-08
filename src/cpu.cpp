@@ -1214,7 +1214,7 @@ void CPU::Opcode0x11() {
 }
 
 void CPU::Opcode0x12() {
-	LD(mmu->get(DE.getRegister()), A);
+	LD(DE.getRegister(), A);
 }
 
 void CPU::Opcode0x13() {
