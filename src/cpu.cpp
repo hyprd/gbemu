@@ -156,6 +156,14 @@ void CPU::PUSHSTACK16(uint16_t word) {
 	sp -= 2;
 }
 
+uint16_t CPU::READSTACK() {
+	uint16_t low = mmu->get(sp);
+	sp++;
+	uint16_t high = mmu->get(sp);
+	sp++;
+	return mmu->formWord(low, high);
+}
+
 void CPU::POPSTACK(Register reg) {
 	uint8_t low = mmu->get(sp);
 	sp++;
@@ -553,14 +561,13 @@ void CPU::JR() {
 }
 
 void CPU::CALL() {
-	PUSHSTACK16(pc);
 	uint16_t imm = mmu->formWord(mmu->get(pc + 2), mmu->get(pc + 1));
+	PUSHSTACK16(imm);
 	pc = imm - 1;
 }
 
 void CPU::RET() {
-	pc = mmu->formWord(mmu->get(sp + 1), mmu->get(sp)) + 2;
-	sp += 2;
+	pc = READSTACK();
 }
 
 void CPU::RETI() {
