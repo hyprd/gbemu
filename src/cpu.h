@@ -113,7 +113,6 @@ public:
 	void RETI();
 	void RST(uint8_t vec);
 	void PUSHSTACK16(uint16_t word);
-	uint16_t READSTACK();
 	void POPSTACK(Register reg);
 	void POPSTACK16();
 	
