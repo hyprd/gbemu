@@ -98,7 +98,7 @@ void CPU::execute(uint8_t inst) {
 		" L: " << std::setw(2) << +*HL.low << 
 		" SP: " << std::setw(4) << +sp << 
 		" PC: " << std::setw(4) << +pc << "\n";
-	if (++count == 243273) {
+	if (++count == 20000) {
 		PrintMessage(Debug, "Operation completed");
 		dbg.close();
 	}
@@ -107,11 +107,9 @@ void CPU::execute(uint8_t inst) {
 	}
 	else {
 		(this->*extendedOpcodes[inst])();
-		// add cycles
 		extended = false;
 	}
 	if (!halted) pc++;
-	// handle interrupt function
 }
 
 bool CPU::didCarry(uint8_t reg) {
@@ -157,12 +155,9 @@ void CPU::PUSHSTACK16(uint16_t word) {
 }
 
 void CPU::POPSTACK(Register reg) {
-	uint8_t low = mmu->get(sp);
-	sp++;
-	reg.low = &low;
-	uint8_t high = mmu->get(sp);
-	sp++;
-	reg.high = &high;
+	*reg.high = mmu->get(sp + 1);
+	*reg.low = mmu->get(sp);
+	sp += 2;
 }
 
 void CPU::POPSTACK16() {
@@ -553,7 +548,9 @@ void CPU::JR() {
 }
 
 void CPU::CALL() {
-	PUSHSTACK16(pc);
+	mmu->set(sp - 1, static_cast<uint8_t>(((pc + 3) >> 8) & 0xFF));
+	mmu->set(sp - 2, static_cast<uint8_t>((pc + 3) & 0xFF));
+	sp -= 2;
 	uint16_t imm = mmu->formWord(mmu->get(pc + 2), mmu->get(pc + 1));
 	pc = imm - 1;
 }
@@ -563,7 +560,7 @@ void CPU::RET() {
 	sp++;
 	uint8_t high = mmu->get(sp);
 	sp++;
-	pc = mmu->formWord(high, low) + 2;
+	pc = mmu->formWord(high, low) - 1;
 }
 
 void CPU::RETI() {

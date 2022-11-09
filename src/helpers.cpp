@@ -22,3 +22,7 @@ void PrintMessage(DType type, std::string message) {
 void PrintHex(uint8_t decimal) {
 	printf("%02X ", decimal);
 }
+
+void PrintHex16(uint16_t decimal) {
+	printf("%04X ", decimal);
+}
