@@ -98,7 +98,7 @@ void CPU::execute(uint8_t inst) {
 		" L: " << std::setw(2) << +*HL.low << 
 		" SP: " << std::setw(4) << +sp << 
 		" PC: " << std::setw(4) << +pc << "\n";
-	if (++count == 20000) {
+	if (++count == 50000) {
 		PrintMessage(Debug, "Operation completed");
 		dbg.close();
 	}
@@ -117,7 +117,7 @@ bool CPU::didCarry(uint8_t reg) {
 }
 
 bool CPU::didHalfCarry(uint8_t reg) {
-	return (reg & 0x0F) == 0x00;
+	return (reg & 0x0F) == 0x0F;
 }
 
 bool CPU::didBorrow(uint8_t reg) {
@@ -262,10 +262,15 @@ void CPU::XOR(uint8_t reg) {
 
 void CPU::CP(uint8_t reg) {
 	uint8_t eval =  A - reg;
-	((eval == 0) || (eval == reg)) ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
+	eval == 0 || eval == reg ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	setFlag(FLAG_N);
-	didHalfCarry(reg) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
-	didCarry(reg) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
+	if (eval > 0x0F) {
+		setFlag(FLAG_H);
+	}
+	else {
+		clearFlag(FLAG_H);
+	}
+	didCarry(eval) ? setFlag(FLAG_C) : clearFlag(FLAG_C); 
 }
 
 void CPU::INC(uint8_t & reg) {
@@ -2063,7 +2068,7 @@ void CPU::Opcode0xD4() {
 }
 
 void CPU::Opcode0xD5() {
-	POPSTACK(DE);
+	PUSHSTACK16(DE.getRegister());
 }
 
 void CPU::Opcode0xD6() {
@@ -2164,7 +2169,7 @@ void CPU::Opcode0xE9() {
 }
 
 void CPU::Opcode0xEA() {
-	mmu->set(mmu->formWord(mmu->get(pc), mmu->get(pc + 1)), A);
+	mmu->set(mmu->formWord(mmu->get(pc + 2), mmu->get(pc + 1)), A);
 	pc += 2;
 }
 
@@ -2190,7 +2195,13 @@ void CPU::Opcode0xEF() {
 }
 
 void CPU::Opcode0xF0() {
-	LD(A, static_cast<uint16_t>(0xFF00 + mmu->get(pc)));
+	/* 
+		This value needs to be hardcoded until LCD support is added.
+
+		See 0xFE.
+	*/
+	A = 0x90;
+	//LD(A, static_cast<uint16_t>(0xFF00 + (mmu->get(pc + 1))));
 	pc++;
 }
 
@@ -2244,7 +2255,7 @@ void CPU::Opcode0xF9() {
 }
 
 void CPU::Opcode0xFA() {
-	LD(A, mmu->formWord(mmu->get(pc), mmu->get(pc + 1)));
+	LD(A, mmu->get(mmu->formWord(mmu->get(pc + 2), mmu->get(pc + 1))));
 	pc += 2;
 }
 
@@ -2261,7 +2272,15 @@ void CPU::Opcode0xFD() {
 }
 
 void CPU::Opcode0xFE() {
-	CP(mmu->get(pc));
+	/* 
+		This opcode is used in order to compare A to LY, which is the current 
+		scanline the renderer is on. It automatically increments whenever the 
+		scanline is finished. Since there is no LCD support however, LY will 
+		be the wrong value and CP will set the wrong flags in the evaluation, 
+		so opcode 0xF0 executed prior will need 0x90 hard coded until LCD is 
+		supported.
+	*/
+	CP(mmu->get(pc + 1));
 	pc++;
 }
 
