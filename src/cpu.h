@@ -32,9 +32,9 @@ public:
 	std::ofstream dbg;
 	int count = 0;
 
-	unsigned long int sp;
-	unsigned long int pc;
-	unsigned long int cycles;
+	uint16_t sp;
+	uint16_t pc;
+	uint16_t cycles;
 
 	uint8_t RSTJumpVectors[8] = { 0x0000, 0x0008, 0x0010, 0x0018, 0x0020, 0x0028, 0x0030, 0x0038 };
 
@@ -100,9 +100,9 @@ public:
 	void SRL(uint8_t * reg);
 	void SWAP(uint8_t * reg);
 	
-	void BIT(uint8_t bit, Register reg);
-	void SET(uint8_t bit, Register reg);
-	void RES(uint8_t bit, Register reg);
+	void BIT(uint8_t bit, uint8_t reg);
+	void SET(uint8_t bit, uint8_t reg);
+	void RES(uint8_t bit, uint8_t reg);
 
 	void JP();
 	void JP_HL();

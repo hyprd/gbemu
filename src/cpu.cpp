@@ -503,20 +503,20 @@ void CPU::SWAP(uint8_t * reg) {
 
 /* BIT OPERATIONS */
 
-void CPU::BIT(uint8_t bit, Register reg) {
-	uint8_t b = mmu->getBit(reg.getRegister(), bit);
+void CPU::BIT(uint8_t bit, uint8_t reg) {
+	uint8_t b = mmu->getBit(reg, bit);
 	b == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
 	setFlag(FLAG_H);
 }
 
-void CPU::SET(uint8_t bit, Register reg) {
-	uint8_t r = reg.getRegister();
+void CPU::SET(uint8_t bit, uint8_t reg) {
+	uint8_t r = reg;
 	r |= 1UL << bit;
 }
 
-void CPU::RES(uint8_t bit, Register reg) {
-	uint8_t r = reg.getRegister();
+void CPU::RES(uint8_t bit, uint8_t reg) {
+	uint8_t r = reg;
 	r &= ~(1UL << bit);
 }
 
@@ -1174,8 +1174,11 @@ void CPU::Opcode0x06() {
 void CPU::Opcode0x07() {
 	RLC(&A);
 }
+
 void CPU::Opcode0x08() {
-	LD(mmu->get(mmu->formWord(mmu->get(pc), mmu->get(pc + 1))), sp);
+	uint16_t word = mmu->get(mmu->formWord(mmu->get(pc), mmu->get(pc + 1)));
+	mmu->set(word, static_cast<uint8_t>(sp & 0xFF));
+	mmu->set(word + 1, static_cast<uint8_t>((sp & 0xFF00) >> 8));
 	pc += 2;
 }
 
