@@ -148,6 +148,11 @@ void CPU::clearFlag(uint8_t flag) {
 	mmu->clearBit(F, flag);
 }
 
+void CPU::getFlags() {
+	std::bitset<8> flags(*AF.low);
+	std::cout << "FLAGS " << flags.to_string() << std::endl;
+}
+
 void CPU::PUSHSTACK16(uint16_t word) {
 	mmu->set(sp - 1, static_cast<uint8_t>((word >> 8) & 0xFF));
 	mmu->set(sp - 2, static_cast<uint8_t>(word & 0xFF));
@@ -277,7 +282,7 @@ void CPU::INC(uint8_t & reg) {
 	reg += 1;
 	reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
-	if ((reg & 0x0F) == 0x0F) {
+	if ((reg & 0x0F) == 0) {
 		setFlag(FLAG_H);
 	}
 	else {
@@ -1454,7 +1459,7 @@ void CPU::Opcode0x45() {
 }
 
 void CPU::Opcode0x46() {
-	LD(B, HL.getRegister());
+	LD(B, mmu->get(HL.getRegister()));
 }
 
 void CPU::Opcode0x47() {

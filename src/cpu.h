@@ -1,4 +1,4 @@
-#pragma once
+ #pragma once
 #include "definitions.h"
 #include "mmu.h"
 
@@ -53,6 +53,7 @@ public:
 	uint8_t getFlag(uint8_t flag);
 	void setFlag(uint8_t flag);
 	void clearFlag(uint8_t flag);
+	void getFlags();
 
 	bool extended = false;
 	bool halted = false;
