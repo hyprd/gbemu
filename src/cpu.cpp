@@ -192,6 +192,7 @@ void CPU::ADD(uint8_t reg) {
 	clearFlag(FLAG_N);
 	didHalfCarry(reg) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
 	didCarry(reg) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
+	A = eval;
 }
 
 void CPU::ADD_HL(uint16_t v) {
@@ -1987,7 +1988,7 @@ void CPU::Opcode0xC5() {
 }
 
 void CPU::Opcode0xC6() {
-	ADD(mmu->get(pc));
+	ADD(mmu->get(pc + 1));
 	pc++;
 }
 
