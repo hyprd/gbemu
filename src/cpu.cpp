@@ -190,8 +190,20 @@ void CPU::ADD(uint8_t reg) {
 	uint8_t eval = static_cast<uint8_t>(A + reg);
 	eval == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
-	didHalfCarry(reg) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
-	didCarry(reg) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
+	if ((A + reg) > 0xF) {
+		setFlag(FLAG_H);
+	}
+	else {
+		clearFlag(FLAG_H);
+	}
+	if ((A + reg) > 0xFF) {
+		setFlag(FLAG_C);
+	}
+	else {
+		clearFlag(FLAG_C);
+	}
+	/*didHalfCarry(reg) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
+	didCarry(reg) ? setFlag(FLAG_C) : clearFlag(FLAG_C);*/
 	A = eval;
 }
 
@@ -216,8 +228,8 @@ void CPU::ADC(uint8_t reg) {
 	uint8_t eval = static_cast<uint8_t>(A + reg + carry);
 	eval == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
-	didHalfCarry(reg + carry) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
-	didCarry(reg + carry) ? setFlag(FLAG_C) : setFlag(FLAG_C);
+	didHalfCarry(eval) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
+	didCarry(eval) ? setFlag(FLAG_C) : setFlag(FLAG_C);
 	A = eval;
 }
 
@@ -225,8 +237,8 @@ void CPU::SUB(uint8_t reg) {
 	int8_t eval = static_cast<int8_t>(A - reg);
 	eval == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	setFlag(FLAG_N);
-	didHalfBorrow(reg) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
-	didBorrow(reg) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
+	didHalfBorrow(eval) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
+	didBorrow(eval) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
 	A = eval;
 }
 
@@ -235,8 +247,8 @@ void CPU::SBC(uint8_t reg) {
 	int8_t eval = static_cast<int8_t>(A - (reg + carry));
 	eval == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	setFlag(FLAG_N);
-	didHalfBorrow(reg + carry) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
-	didBorrow(reg + carry) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
+	didHalfBorrow(eval) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
+	didBorrow(eval) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
 	A = eval;
 }
 
@@ -2081,7 +2093,7 @@ void CPU::Opcode0xD5() {
 }
 
 void CPU::Opcode0xD6() {
-	SUB(mmu->get(pc));
+	SUB(mmu->get(pc + 1));
 	pc++;
 }
 
