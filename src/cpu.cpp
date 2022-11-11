@@ -202,8 +202,6 @@ void CPU::ADD(uint8_t reg) {
 	else {
 		clearFlag(FLAG_C);
 	}
-	/*didHalfCarry(reg) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
-	didCarry(reg) ? setFlag(FLAG_C) : clearFlag(FLAG_C);*/
 	A = eval;
 }
 
@@ -402,7 +400,7 @@ void CPU::RLC(uint8_t * reg) {
 	uint8_t bit = mmu->getBit(*reg, 7);
 	*reg <<= 1;
 	// Set flag Z if operand is 0
-	*reg ? clearFlag(FLAG_Z) : setFlag(FLAG_Z);
+	*reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	if (bit) {
 		setFlag(FLAG_C);
 		mmu->setBit(*reg, 0);
@@ -418,7 +416,7 @@ void CPU::RL(uint8_t * reg) {
 	uint8_t carry = getFlag(FLAG_C);
 	carry ? mmu->setBit(*reg, 0) : mmu->clearBit(*reg, 0);
 	*reg <<= 1;
-	*reg ? clearFlag(FLAG_Z) : setFlag(FLAG_Z);
+	*reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
 	clearFlag(FLAG_H);
 	if (bit) {
@@ -434,7 +432,7 @@ void CPU::RR(uint8_t * reg) {
 	uint8_t carry = getFlag(FLAG_C);
 	carry ? mmu->setBit(*reg, 7) : mmu->clearBit(*reg, 7);
 	*reg >>= 1;
-	*reg ? clearFlag(FLAG_Z) : setFlag(FLAG_Z);
+	*reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
 	clearFlag(FLAG_H);
 	if (bit) {
@@ -449,7 +447,7 @@ void CPU::RRC(uint8_t* reg) {
 	uint8_t bit = mmu->getBit(*reg, 0);
 	*reg >>= 1;
 	// Set flag Z if operand is 0
-	*reg ? clearFlag(FLAG_Z) : setFlag(FLAG_Z);
+	*reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	if (bit) {
 		setFlag(FLAG_C);
 		mmu->setBit(*reg, 7);
@@ -464,7 +462,7 @@ void CPU::SLA(uint8_t * reg) {
 	*reg <<= 1;
 	uint8_t bit = mmu->getBit(*reg, 7);
 	mmu->clearBit(*reg, 0);
-	*reg ? clearFlag(FLAG_Z) : setFlag(FLAG_Z);
+	*reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
 	clearFlag(FLAG_H);
 	if (bit) {
@@ -479,7 +477,7 @@ void CPU::SRA(uint8_t * reg) {
 	*reg >>= 1;
 	uint8_t bit = mmu->getBit(*reg, 0);
 	// Bit 7 is unchanged
-	*reg ? clearFlag(FLAG_Z) : setFlag(FLAG_Z);
+	*reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
 	clearFlag(FLAG_H);
 	if (bit) {
@@ -494,7 +492,7 @@ void CPU::SRL(uint8_t * reg) {
 	*reg >>= 1;
 	uint8_t bit = mmu->getBit(*reg, 0);
 	mmu->clearBit(*reg, 7);
-	*reg ? clearFlag(FLAG_Z) : setFlag(FLAG_Z);
+	*reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
 	clearFlag(FLAG_H);
 	if (bit) {
@@ -507,7 +505,7 @@ void CPU::SRL(uint8_t * reg) {
 
 void CPU::SWAP(uint8_t * reg) {
 	*reg = ((*reg & 0x0F) << 4) | ((*reg & 0xF0) >> 4);
-	*reg ? clearFlag(FLAG_Z) : setFlag(FLAG_Z);
+	*reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
 	clearFlag(FLAG_H);
 	clearFlag(FLAG_C);
@@ -1507,7 +1505,7 @@ void CPU::Opcode0x4D() {
 }
 
 void CPU::Opcode0x4E() {
-	LD(E, HL.getRegister());
+	LD(C, mmu->get(HL.getRegister()));
 }
 
 void CPU::Opcode0x4F() {
@@ -1539,7 +1537,7 @@ void CPU::Opcode0x55() {
 }
 
 void CPU::Opcode0x56() {
-	LD(D, HL.getRegister());
+	LD(D, mmu->get(HL.getRegister()));
 }
 
 void CPU::Opcode0x57() {
@@ -1571,7 +1569,7 @@ void CPU::Opcode0x5D() {
 }
 
 void CPU::Opcode0x5E() {
-	LD(E, HL.getRegister());
+	LD(E, mmu->get(HL.getRegister()));
 }
 
 void CPU::Opcode0x5F() {
@@ -1603,7 +1601,7 @@ void CPU::Opcode0x65() {
 }
 
 void CPU::Opcode0x66() {
-	LD(H, HL.getRegister());
+	LD(H, mmu->get(HL.getRegister()));
 }
 
 void CPU::Opcode0x67() {
@@ -1635,7 +1633,7 @@ void CPU::Opcode0x6D() {
 }
 
 void CPU::Opcode0x6E() {
-	LD(L, HL.getRegister());
+	LD(L, mmu->get(HL.getRegister()));
 }
 
 void CPU::Opcode0x6F() {
@@ -1699,7 +1697,7 @@ void CPU::Opcode0x7D() {
 }
 
 void CPU::Opcode0x7E() {
-	LD(A, HL.getRegister());
+	LD(A, mmu->get(HL.getRegister()));
 }
 
 void CPU::Opcode0x7F() {
@@ -2148,7 +2146,7 @@ void CPU::Opcode0xDF() {
 }
 
 void CPU::Opcode0xE0() {
-	LD(static_cast<uint16_t>(0xFF00 + mmu->get(pc)), A);
+	LD(static_cast<uint16_t>(0xFF00 + mmu->get(pc + 1)), A);
 	pc++;
 }
 
