@@ -55,7 +55,6 @@ public:
 	void clearFlag(uint8_t flag);
 	void getFlags();
 
-	bool extended = false;
 	bool halted = false;
 	bool ime = false;
 

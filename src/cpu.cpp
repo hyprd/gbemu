@@ -102,13 +102,7 @@ void CPU::execute(uint8_t inst) {
 		PrintMessage(Debug, "Operation completed");
 		dbg.close();
 	}
-	if (!extended) {
-		(this->*opcodes[inst])();
-	}
-	else {
-		(this->*extendedOpcodes[inst])();
-		extended = false;
-	}
+	(this->*opcodes[inst])();
 	if (!halted) pc++;
 }
 
@@ -2027,7 +2021,8 @@ void CPU::Opcode0xCA() {
 }
 
 void CPU::Opcode0xCB() {
-	extended = true;
+	(this->*extendedOpcodes[mmu->get(pc + 1)])();
+	pc++;
 }
 
 void CPU::Opcode0xCC() {
