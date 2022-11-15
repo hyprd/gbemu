@@ -101,8 +101,8 @@ public:
 	void SWAP(uint8_t * reg);
 	
 	void BIT(uint8_t bit, uint8_t reg);
-	void SET(uint8_t bit, uint8_t reg);
-	void RES(uint8_t bit, uint8_t reg);
+	void SET(uint8_t bit, uint8_t * reg);
+	void RES(uint8_t bit, uint8_t * reg);
 
 	void JP();
 	void JP_HL();

@@ -520,14 +520,12 @@ void CPU::BIT(uint8_t bit, uint8_t reg) {
 	setFlag(FLAG_H);
 }
 
-void CPU::SET(uint8_t bit, uint8_t reg) {
-	uint8_t r = reg;
-	r |= 1UL << bit;
+void CPU::SET(uint8_t bit, uint8_t * reg) {
+	*reg |= 1UL << bit;
 }
 
-void CPU::RES(uint8_t bit, uint8_t reg) {
-	uint8_t r = reg;
-	r &= ~(1UL << bit);
+void CPU::RES(uint8_t bit, uint8_t * reg) {
+	*reg &= ~(1UL << bit);
 }
 
 /* JUMP INSTRUCTIONS */
@@ -2307,259 +2305,1057 @@ void CPU::Opcode0xFF() {
 	RST(7);
 }
 
-void CPU::extendedOpcode0x00(){}
-void CPU::extendedOpcode0x01(){}
-void CPU::extendedOpcode0x02(){}
-void CPU::extendedOpcode0x03(){}
-void CPU::extendedOpcode0x04(){}
-void CPU::extendedOpcode0x05(){}
-void CPU::extendedOpcode0x06(){}
-void CPU::extendedOpcode0x07(){}
-void CPU::extendedOpcode0x08(){}
-void CPU::extendedOpcode0x09(){}
-void CPU::extendedOpcode0x0A(){}
-void CPU::extendedOpcode0x0B(){}
-void CPU::extendedOpcode0x0C(){}
-void CPU::extendedOpcode0x0D(){}
-void CPU::extendedOpcode0x0E(){}
-void CPU::extendedOpcode0x0F(){}
-void CPU::extendedOpcode0x10(){}
-void CPU::extendedOpcode0x11(){}
-void CPU::extendedOpcode0x12(){}
-void CPU::extendedOpcode0x13(){}
-void CPU::extendedOpcode0x14(){}
-void CPU::extendedOpcode0x15(){}
-void CPU::extendedOpcode0x16(){}
-void CPU::extendedOpcode0x17(){}
-void CPU::extendedOpcode0x18(){}
-void CPU::extendedOpcode0x19(){}
-void CPU::extendedOpcode0x1A(){}
-void CPU::extendedOpcode0x1B(){}
-void CPU::extendedOpcode0x1C(){}
-void CPU::extendedOpcode0x1D(){}
-void CPU::extendedOpcode0x1E(){}
-void CPU::extendedOpcode0x1F(){}
-void CPU::extendedOpcode0x20(){}
-void CPU::extendedOpcode0x21(){}
-void CPU::extendedOpcode0x22(){}
-void CPU::extendedOpcode0x23(){}
-void CPU::extendedOpcode0x24(){}
-void CPU::extendedOpcode0x25(){}
-void CPU::extendedOpcode0x26(){}
-void CPU::extendedOpcode0x27(){}
-void CPU::extendedOpcode0x28(){}
-void CPU::extendedOpcode0x29(){}
-void CPU::extendedOpcode0x2A(){}
-void CPU::extendedOpcode0x2B(){}
-void CPU::extendedOpcode0x2C(){}
-void CPU::extendedOpcode0x2D(){}
-void CPU::extendedOpcode0x2E(){}
-void CPU::extendedOpcode0x2F(){}
-void CPU::extendedOpcode0x30(){}
-void CPU::extendedOpcode0x31(){}
-void CPU::extendedOpcode0x32(){}
-void CPU::extendedOpcode0x33(){}
-void CPU::extendedOpcode0x34(){}
-void CPU::extendedOpcode0x35(){}
-void CPU::extendedOpcode0x36(){}
-void CPU::extendedOpcode0x37(){}
-void CPU::extendedOpcode0x38(){}
-void CPU::extendedOpcode0x39(){}
-void CPU::extendedOpcode0x3A(){}
-void CPU::extendedOpcode0x3B(){}
-void CPU::extendedOpcode0x3C(){}
-void CPU::extendedOpcode0x3D(){}
-void CPU::extendedOpcode0x3E(){}
-void CPU::extendedOpcode0x3F(){}
-void CPU::extendedOpcode0x40(){}
-void CPU::extendedOpcode0x41(){}
-void CPU::extendedOpcode0x42(){}
-void CPU::extendedOpcode0x43(){}
-void CPU::extendedOpcode0x44(){}
-void CPU::extendedOpcode0x45(){}
-void CPU::extendedOpcode0x46(){}
-void CPU::extendedOpcode0x47(){}
-void CPU::extendedOpcode0x48(){}
-void CPU::extendedOpcode0x49(){}
-void CPU::extendedOpcode0x4A(){}
-void CPU::extendedOpcode0x4B(){}
-void CPU::extendedOpcode0x4C(){}
-void CPU::extendedOpcode0x4D(){}
-void CPU::extendedOpcode0x4E(){}
-void CPU::extendedOpcode0x4F(){}
-void CPU::extendedOpcode0x50(){}
-void CPU::extendedOpcode0x51(){}
-void CPU::extendedOpcode0x52(){}
-void CPU::extendedOpcode0x53(){}
-void CPU::extendedOpcode0x54(){}
-void CPU::extendedOpcode0x55(){}
-void CPU::extendedOpcode0x56(){}
-void CPU::extendedOpcode0x57(){}
-void CPU::extendedOpcode0x58(){}
-void CPU::extendedOpcode0x59(){}
-void CPU::extendedOpcode0x5A(){}
-void CPU::extendedOpcode0x5B(){}
-void CPU::extendedOpcode0x5C(){}
-void CPU::extendedOpcode0x5D(){}
-void CPU::extendedOpcode0x5E(){}
-void CPU::extendedOpcode0x5F(){}
-void CPU::extendedOpcode0x60(){}
-void CPU::extendedOpcode0x61(){}
-void CPU::extendedOpcode0x62(){}
-void CPU::extendedOpcode0x63(){}
-void CPU::extendedOpcode0x64(){}
-void CPU::extendedOpcode0x65(){}
-void CPU::extendedOpcode0x66(){}
-void CPU::extendedOpcode0x67(){}
-void CPU::extendedOpcode0x68(){}
-void CPU::extendedOpcode0x69(){}
-void CPU::extendedOpcode0x6A(){}
-void CPU::extendedOpcode0x6B(){}
-void CPU::extendedOpcode0x6C(){}
-void CPU::extendedOpcode0x6D(){}
-void CPU::extendedOpcode0x6E(){}
-void CPU::extendedOpcode0x6F(){}
-void CPU::extendedOpcode0x70(){}
-void CPU::extendedOpcode0x71(){}
-void CPU::extendedOpcode0x72(){}
-void CPU::extendedOpcode0x73(){}
-void CPU::extendedOpcode0x74(){}
-void CPU::extendedOpcode0x75(){}
-void CPU::extendedOpcode0x76(){}
-void CPU::extendedOpcode0x77(){}
-void CPU::extendedOpcode0x78(){}
-void CPU::extendedOpcode0x79(){}
-void CPU::extendedOpcode0x7A(){}
-void CPU::extendedOpcode0x7B(){}
-void CPU::extendedOpcode0x7C(){}
-void CPU::extendedOpcode0x7D(){}
-void CPU::extendedOpcode0x7E(){}
-void CPU::extendedOpcode0x7F(){}
-void CPU::extendedOpcode0x80(){}
-void CPU::extendedOpcode0x81(){}
-void CPU::extendedOpcode0x82(){}
-void CPU::extendedOpcode0x83(){}
-void CPU::extendedOpcode0x84(){}
-void CPU::extendedOpcode0x85(){}
-void CPU::extendedOpcode0x86(){}
-void CPU::extendedOpcode0x87(){}
-void CPU::extendedOpcode0x88(){}
-void CPU::extendedOpcode0x89(){}
-void CPU::extendedOpcode0x8A(){}
-void CPU::extendedOpcode0x8B(){}
-void CPU::extendedOpcode0x8C(){}
-void CPU::extendedOpcode0x8D(){}
-void CPU::extendedOpcode0x8E(){}
-void CPU::extendedOpcode0x8F(){}
-void CPU::extendedOpcode0x90(){}
-void CPU::extendedOpcode0x91(){}
-void CPU::extendedOpcode0x92(){}
-void CPU::extendedOpcode0x93(){}
-void CPU::extendedOpcode0x94(){}
-void CPU::extendedOpcode0x95(){}
-void CPU::extendedOpcode0x96(){}
-void CPU::extendedOpcode0x97(){}
-void CPU::extendedOpcode0x98(){}
-void CPU::extendedOpcode0x99(){}
-void CPU::extendedOpcode0x9A(){}
-void CPU::extendedOpcode0x9B(){}
-void CPU::extendedOpcode0x9C(){}
-void CPU::extendedOpcode0x9D(){}
-void CPU::extendedOpcode0x9E(){}
-void CPU::extendedOpcode0x9F(){}
-void CPU::extendedOpcode0xA0(){}
-void CPU::extendedOpcode0xA1(){}
-void CPU::extendedOpcode0xA2(){}
-void CPU::extendedOpcode0xA3(){}
-void CPU::extendedOpcode0xA4(){}
-void CPU::extendedOpcode0xA5(){}
-void CPU::extendedOpcode0xA6(){}
-void CPU::extendedOpcode0xA7(){}
-void CPU::extendedOpcode0xA8(){}
-void CPU::extendedOpcode0xA9(){}
-void CPU::extendedOpcode0xAA(){}
-void CPU::extendedOpcode0xAB(){}
-void CPU::extendedOpcode0xAC(){}
-void CPU::extendedOpcode0xAD(){}
-void CPU::extendedOpcode0xAE(){}
-void CPU::extendedOpcode0xAF(){}
-void CPU::extendedOpcode0xB0(){}
-void CPU::extendedOpcode0xB1(){}
-void CPU::extendedOpcode0xB2(){}
-void CPU::extendedOpcode0xB3(){}
-void CPU::extendedOpcode0xB4(){}
-void CPU::extendedOpcode0xB5(){}
-void CPU::extendedOpcode0xB6(){}
-void CPU::extendedOpcode0xB7(){}
-void CPU::extendedOpcode0xB8(){}
-void CPU::extendedOpcode0xB9(){}
-void CPU::extendedOpcode0xBA(){}
-void CPU::extendedOpcode0xBB(){}
-void CPU::extendedOpcode0xBC(){}
-void CPU::extendedOpcode0xBD(){}
-void CPU::extendedOpcode0xBE(){}
-void CPU::extendedOpcode0xBF(){}
-void CPU::extendedOpcode0xC0(){}
-void CPU::extendedOpcode0xC1(){}
-void CPU::extendedOpcode0xC2(){}
-void CPU::extendedOpcode0xC3(){}
-void CPU::extendedOpcode0xC4(){}
-void CPU::extendedOpcode0xC5(){}
-void CPU::extendedOpcode0xC6(){}
-void CPU::extendedOpcode0xC7(){}
-void CPU::extendedOpcode0xC8(){}
-void CPU::extendedOpcode0xC9(){}
-void CPU::extendedOpcode0xCA(){}
-void CPU::extendedOpcode0xCB(){}
-void CPU::extendedOpcode0xCC(){}
-void CPU::extendedOpcode0xCD(){}
-void CPU::extendedOpcode0xCE(){}
-void CPU::extendedOpcode0xCF(){}
-void CPU::extendedOpcode0xD0(){}
-void CPU::extendedOpcode0xD1(){}
-void CPU::extendedOpcode0xD2(){}
-void CPU::extendedOpcode0xD3(){}
-void CPU::extendedOpcode0xD4(){}
-void CPU::extendedOpcode0xD5(){}
-void CPU::extendedOpcode0xD6(){}
-void CPU::extendedOpcode0xD7(){}
-void CPU::extendedOpcode0xD8(){}
-void CPU::extendedOpcode0xD9(){}
-void CPU::extendedOpcode0xDA(){}
-void CPU::extendedOpcode0xDB(){}
-void CPU::extendedOpcode0xDC(){}
-void CPU::extendedOpcode0xDD(){}
-void CPU::extendedOpcode0xDE(){}
-void CPU::extendedOpcode0xDF(){}
-void CPU::extendedOpcode0xE0(){}
-void CPU::extendedOpcode0xE1(){}
-void CPU::extendedOpcode0xE2(){}
-void CPU::extendedOpcode0xE3(){}
-void CPU::extendedOpcode0xE4(){}
-void CPU::extendedOpcode0xE5(){}
-void CPU::extendedOpcode0xE6(){}
-void CPU::extendedOpcode0xE7(){}
-void CPU::extendedOpcode0xE8(){}
-void CPU::extendedOpcode0xE9(){}
-void CPU::extendedOpcode0xEA(){}
-void CPU::extendedOpcode0xEB(){}
-void CPU::extendedOpcode0xEC(){}
-void CPU::extendedOpcode0xED(){}
-void CPU::extendedOpcode0xEE(){}
-void CPU::extendedOpcode0xEF(){}
-void CPU::extendedOpcode0xF0(){}
-void CPU::extendedOpcode0xF1(){}
-void CPU::extendedOpcode0xF2(){}
-void CPU::extendedOpcode0xF3(){}
-void CPU::extendedOpcode0xF4(){}
-void CPU::extendedOpcode0xF5(){}
-void CPU::extendedOpcode0xF6(){}
-void CPU::extendedOpcode0xF7(){}
-void CPU::extendedOpcode0xF8(){}
-void CPU::extendedOpcode0xF9(){}
-void CPU::extendedOpcode0xFA(){}
-void CPU::extendedOpcode0xFB(){}
-void CPU::extendedOpcode0xFC(){}
-void CPU::extendedOpcode0xFD(){}
-void CPU::extendedOpcode0xFE(){}
-void CPU::extendedOpcode0xFF(){}
+void CPU::extendedOpcode0x00() {
+	RLC(&B);
+}
+
+void CPU::extendedOpcode0x01() {
+	RLC(&C);
+}
+
+void CPU::extendedOpcode0x02() {
+	RLC(&D);
+}
+
+void CPU::extendedOpcode0x03() {
+	RLC(&E);
+}
+
+void CPU::extendedOpcode0x04() {
+	RLC(&H);
+}
+
+void CPU::extendedOpcode0x05() {
+	RLC(&L);
+}
+void CPU::extendedOpcode0x06() {
+	uint8_t imm = mmu->get(HL.getRegister());
+	RLC(&imm);
+}
+
+void CPU::extendedOpcode0x07() {
+	RLC(&A);
+}
+
+void CPU::extendedOpcode0x08() {
+	RRC(&B);
+}
+
+void CPU::extendedOpcode0x09() {
+	RRC(&C);
+}
+
+void CPU::extendedOpcode0x0A() {
+	RRC(&D);
+}
+
+void CPU::extendedOpcode0x0B() {
+	RRC(&E);
+}
+
+void CPU::extendedOpcode0x0C() {
+	RRC(&H);
+}
+
+void CPU::extendedOpcode0x0D() {
+	RRC(&L);
+}
+
+void CPU::extendedOpcode0x0E() {
+	uint8_t imm = mmu->get(HL.getRegister());
+	RRC(&imm);
+}
+
+void CPU::extendedOpcode0x0F() {
+	RRC(&A);
+}
+
+void CPU::extendedOpcode0x10() {
+	RL(&B);
+}
+
+void CPU::extendedOpcode0x11() {
+	RL(&C);
+}
+
+void CPU::extendedOpcode0x12() {
+	RL(&D);
+}
+
+void CPU::extendedOpcode0x13() {
+	RL(&E);
+}
+
+void CPU::extendedOpcode0x14() {
+	RL(&H);
+}
+
+void CPU::extendedOpcode0x15() {
+	RL(&L);
+}
+
+void CPU::extendedOpcode0x16() {
+	uint8_t imm = mmu->get(HL.getRegister());
+	RL(&imm);
+}
+
+void CPU::extendedOpcode0x17() {
+	RL(&A);
+}
+
+void CPU::extendedOpcode0x18() {
+	RR(&B);
+}
+
+void CPU::extendedOpcode0x19() {
+	RR(&C);
+}
+
+void CPU::extendedOpcode0x1A() {
+	RR(&D);
+}
+
+void CPU::extendedOpcode0x1B() {
+	RR(&E);
+}
+
+void CPU::extendedOpcode0x1C() {
+	RR(&H);
+}
+
+void CPU::extendedOpcode0x1D() {
+	RR(&L);
+}
+
+void CPU::extendedOpcode0x1E() {
+	uint8_t imm = mmu->get(HL.getRegister());
+	RR(&imm);
+}
+
+void CPU::extendedOpcode0x1F() {
+	RR(&A);
+}
+
+void CPU::extendedOpcode0x20() {
+	SLA(&B);
+}
+
+void CPU::extendedOpcode0x21() {
+	SLA(&C);
+}
+
+void CPU::extendedOpcode0x22() {
+	SLA(&D);
+}
+
+void CPU::extendedOpcode0x23() {
+	SLA(&E);
+}
+
+void CPU::extendedOpcode0x24() {
+	SLA(&H);
+}
+
+void CPU::extendedOpcode0x25() {
+	SLA(&L);
+}
+
+void CPU::extendedOpcode0x26() {
+	uint8_t imm = mmu->get(HL.getRegister());
+	SLA(&imm);
+}
+
+void CPU::extendedOpcode0x27() {
+	SLA(&A);
+}
+
+void CPU::extendedOpcode0x28() {
+	SRA(&B);
+}
+
+void CPU::extendedOpcode0x29() {
+	SRA(&C);
+}
+
+void CPU::extendedOpcode0x2A() {
+	SRA(&D);
+}
+
+void CPU::extendedOpcode0x2B() {
+	SRA(&E);
+}
+
+void CPU::extendedOpcode0x2C() {
+	SRA(&H);
+}
+
+void CPU::extendedOpcode0x2D() {
+	SRA(&L);
+}
+
+void CPU::extendedOpcode0x2E() {
+	uint8_t imm = mmu->get(HL.getRegister());
+	SRA(&imm);
+}
+
+void CPU::extendedOpcode0x2F() {
+	SRA(&A);
+}
+
+void CPU::extendedOpcode0x30() {
+	SWAP(&B);
+}
+
+void CPU::extendedOpcode0x31() {
+	SWAP(&C);
+}
+
+void CPU::extendedOpcode0x32() {
+	SWAP(&D);
+}
+
+void CPU::extendedOpcode0x33() {
+	SWAP(&E);
+}
+
+void CPU::extendedOpcode0x34() {
+	SWAP(&H);
+}
+
+void CPU::extendedOpcode0x35() {
+	SWAP(&L);
+}
+
+void CPU::extendedOpcode0x36() {
+	uint8_t imm = mmu->get(HL.getRegister());
+	SWAP(&imm);
+}
+
+void CPU::extendedOpcode0x37() {
+	SWAP(&A);
+}
+
+void CPU::extendedOpcode0x38() {
+	SRL(&B);
+}
+
+void CPU::extendedOpcode0x39() {
+	SRL(&C);
+}
+
+void CPU::extendedOpcode0x3A() {
+	SRL(&D);
+}
+
+void CPU::extendedOpcode0x3B() {
+	SRL(&E);
+}
+
+void CPU::extendedOpcode0x3C() {
+	SRL(&H);
+}
+
+void CPU::extendedOpcode0x3D() {
+	SRL(&L);
+}
+
+void CPU::extendedOpcode0x3E() {
+	uint8_t imm = mmu->get(HL.getRegister());
+	SRL(&imm);
+}
+
+void CPU::extendedOpcode0x3F() {
+	SRL(&A);
+}
+
+void CPU::extendedOpcode0x40() {
+	BIT(0, B);
+}
+
+void CPU::extendedOpcode0x41() {
+	BIT(0, C);
+}
+
+void CPU::extendedOpcode0x42() {
+	BIT(0, D);
+}
+
+void CPU::extendedOpcode0x43() {
+	BIT(0, E);
+}
+
+void CPU::extendedOpcode0x44() {
+	BIT(0, H);
+}
+
+void CPU::extendedOpcode0x45() {
+	BIT(0, L);
+}
+
+void CPU::extendedOpcode0x46() {
+	uint8_t imm = mmu->get(HL.getRegister());
+	BIT(0, imm);
+}
+
+void CPU::extendedOpcode0x47() {
+	BIT(0, A);
+}
+
+void CPU::extendedOpcode0x48() {
+	BIT(1, B);
+}
+
+void CPU::extendedOpcode0x49() {
+	BIT(1, C);
+}
+
+void CPU::extendedOpcode0x4A() {
+	BIT(1, D);
+}
+
+void CPU::extendedOpcode0x4B() {
+	BIT(1, E);
+}
+
+void CPU::extendedOpcode0x4C() {
+	BIT(1, H);
+}
+
+void CPU::extendedOpcode0x4D() {
+	BIT(1, L);
+}
+
+void CPU::extendedOpcode0x4E() {
+	uint8_t imm = mmu->get(HL.getRegister());
+	BIT(1, imm);
+}
+
+void CPU::extendedOpcode0x4F() {
+	BIT(1, A);
+}
+
+void CPU::extendedOpcode0x50() {
+	BIT(2, B);
+}
+
+void CPU::extendedOpcode0x51() {
+	BIT(2, C);
+}
+
+void CPU::extendedOpcode0x52() {
+	BIT(2, D);
+}
+
+void CPU::extendedOpcode0x53() {
+	BIT(2, E);
+}
+
+void CPU::extendedOpcode0x54() {
+	BIT(2, H);
+}
+
+void CPU::extendedOpcode0x55() {
+	BIT(2, L);
+}
+
+void CPU::extendedOpcode0x56() {
+	uint8_t imm = mmu->get(HL.getRegister());
+	BIT(2, imm);
+}
+
+void CPU::extendedOpcode0x57() {
+	BIT(2, A);
+}
+
+void CPU::extendedOpcode0x58() {
+	BIT(3, B);
+}
+
+void CPU::extendedOpcode0x59() {
+	BIT(3, C);
+}
+
+void CPU::extendedOpcode0x5A() {
+	BIT(3, D);
+}
+
+void CPU::extendedOpcode0x5B() {
+	BIT(3, E);
+}
+
+void CPU::extendedOpcode0x5C() {
+	BIT(3, H);
+}
+
+void CPU::extendedOpcode0x5D() {
+	BIT(3, L);
+}
+
+void CPU::extendedOpcode0x5E() {
+	uint8_t imm = mmu->get(HL.getRegister());
+	BIT(3, imm);
+}
+
+void CPU::extendedOpcode0x5F() {
+	BIT(3, A);
+}
+
+void CPU::extendedOpcode0x60() {
+	BIT(4, B);
+}
+
+void CPU::extendedOpcode0x61() {
+	BIT(4, C);
+}
+
+void CPU::extendedOpcode0x62() {
+	BIT(4, D);
+}
+
+void CPU::extendedOpcode0x63() {
+	BIT(4, E);
+}
+
+void CPU::extendedOpcode0x64() {
+	BIT(4, H);
+}
+
+void CPU::extendedOpcode0x65() {
+	BIT(4, L);
+}
+
+void CPU::extendedOpcode0x66() {
+	uint8_t imm = mmu->get(HL.getRegister());
+	BIT(4, imm);
+}
+
+void CPU::extendedOpcode0x67() {
+	BIT(4, A);
+}
+
+void CPU::extendedOpcode0x68() {
+	BIT(5, B);
+}
+
+void CPU::extendedOpcode0x69() {
+	BIT(5, C);
+}
+
+void CPU::extendedOpcode0x6A() {
+	BIT(5, D);
+}
+
+void CPU::extendedOpcode0x6B() {
+	BIT(5, E);
+}
+
+void CPU::extendedOpcode0x6C() {
+	BIT(5, H);
+}
+
+void CPU::extendedOpcode0x6D() {
+	BIT(5, L);
+}
+
+void CPU::extendedOpcode0x6E() {
+	uint8_t imm = mmu->get(HL.getRegister());
+	BIT(5, imm);
+}
+
+void CPU::extendedOpcode0x6F() {
+	BIT(5, A);
+}
+
+void CPU::extendedOpcode0x70() {
+	BIT(6, B);
+}
+
+void CPU::extendedOpcode0x71() {
+	BIT(6, C);
+}
+
+void CPU::extendedOpcode0x72() {
+	BIT(6, D);
+}
+
+void CPU::extendedOpcode0x73() {
+	BIT(6, E);
+}
+
+void CPU::extendedOpcode0x74() {
+	BIT(6, H);
+}
+
+void CPU::extendedOpcode0x75() {
+	BIT(6, L);
+}
+
+void CPU::extendedOpcode0x76() {
+	uint8_t imm = mmu->get(HL.getRegister());
+	BIT(6, imm);
+}
+
+void CPU::extendedOpcode0x77() {
+	BIT(6, A);
+}
+
+void CPU::extendedOpcode0x78() {
+	BIT(7, B);
+}
+
+void CPU::extendedOpcode0x79() {
+	BIT(7, C);
+}
+
+void CPU::extendedOpcode0x7A() {
+	BIT(7, D);
+}
+
+void CPU::extendedOpcode0x7B() {
+	BIT(7, E);
+}
+
+void CPU::extendedOpcode0x7C() {
+	BIT(7, H);
+}
+
+void CPU::extendedOpcode0x7D() {
+	BIT(7, L);
+}
+
+void CPU::extendedOpcode0x7E() {
+	uint8_t imm = mmu->get(HL.getRegister());
+	BIT(7, imm);
+}
+
+void CPU::extendedOpcode0x7F() {
+	BIT(7, A);
+}
+
+void CPU::extendedOpcode0x80() {
+	RES(0, &B);
+}
+
+void CPU::extendedOpcode0x81() {
+	RES(0, &C);
+}
+
+void CPU::extendedOpcode0x82() {
+	RES(0, &D);
+}
+
+void CPU::extendedOpcode0x83() {
+	RES(0, &E);
+}
+
+void CPU::extendedOpcode0x84() {
+	RES(0, &H);
+}
+
+void CPU::extendedOpcode0x85() {
+	RES(0, &L);
+}
+
+void CPU::extendedOpcode0x86() {
+	uint8_t imm = mmu->get(HL.getRegister());
+	RES(0, &imm);
+}
+
+void CPU::extendedOpcode0x87() {
+	RES(0, &A);
+}
+
+void CPU::extendedOpcode0x88() {
+	RES(1, &B);
+}
+
+void CPU::extendedOpcode0x89() {
+	RES(1, &C);
+}
+
+void CPU::extendedOpcode0x8A() {
+	RES(1, &D);
+}
+
+void CPU::extendedOpcode0x8B() {
+	RES(1, &E);
+}
+
+void CPU::extendedOpcode0x8C() {
+	RES(1, &H);
+}
+
+void CPU::extendedOpcode0x8D() {
+	RES(1, &L);
+}
+
+void CPU::extendedOpcode0x8E() {
+	uint8_t imm = mmu->get(HL.getRegister());
+	RES(1, &imm);
+}
+
+void CPU::extendedOpcode0x8F() {
+	RES(1, &A);
+}
+
+void CPU::extendedOpcode0x90() {
+	RES(2, &B);
+}
+
+void CPU::extendedOpcode0x91() {
+	RES(2, &C);
+}
+
+void CPU::extendedOpcode0x92() {
+	RES(2, &D);
+}
+
+void CPU::extendedOpcode0x93() {
+	RES(2, &E);
+}
+
+void CPU::extendedOpcode0x94() {
+	RES(2, &H);
+}
+
+void CPU::extendedOpcode0x95() {
+	RES(2, &L);
+}
+
+void CPU::extendedOpcode0x96() {
+	uint8_t imm = mmu->get(HL.getRegister());
+	RES(2, &imm);
+}
+
+void CPU::extendedOpcode0x97() {
+	RES(2, &A);
+}
+
+void CPU::extendedOpcode0x98() {
+	RES(3, &B);
+}
+
+void CPU::extendedOpcode0x99() {
+	RES(3, &C);
+}
+
+void CPU::extendedOpcode0x9A() {
+	RES(3, &D);
+}
+
+void CPU::extendedOpcode0x9B() {
+	RES(3, &E);
+}
+
+void CPU::extendedOpcode0x9C() {
+	RES(3, &H);
+}
+
+void CPU::extendedOpcode0x9D() {
+	RES(3, &L);
+}
+
+void CPU::extendedOpcode0x9E() {
+	uint8_t imm = mmu->get(HL.getRegister());
+	RES(3, &imm);
+}
+
+void CPU::extendedOpcode0x9F() {
+	RES(3, &A);
+}
+
+void CPU::extendedOpcode0xA0() {
+	RES(4, &B);
+}
+
+void CPU::extendedOpcode0xA1() {
+	RES(4, &C);
+}
+
+void CPU::extendedOpcode0xA2() {
+	RES(4, &D);
+}
+
+void CPU::extendedOpcode0xA3() {
+	RES(4, &E);
+}
+
+void CPU::extendedOpcode0xA4() {
+	RES(4, &H);
+}
+
+void CPU::extendedOpcode0xA5() {
+	RES(4, &L);
+}
+
+void CPU::extendedOpcode0xA6() {
+	uint8_t imm = mmu->get(HL.getRegister());
+	RES(4, &imm);
+}
+
+void CPU::extendedOpcode0xA7() {
+	RES(4, &A);
+}
+
+void CPU::extendedOpcode0xA8() {
+	RES(5, &B);
+}
+
+void CPU::extendedOpcode0xA9() {
+	RES(5, &C);
+}
+
+void CPU::extendedOpcode0xAA() {
+	RES(5, &D);
+}
+
+void CPU::extendedOpcode0xAB() {
+	RES(5, &E);
+}
+
+void CPU::extendedOpcode0xAC() {
+	RES(5, &H);
+}
+
+void CPU::extendedOpcode0xAD() {
+	RES(5, &L);
+}
+
+void CPU::extendedOpcode0xAE() {
+	uint8_t imm = mmu->get(HL.getRegister());
+	RES(5, &imm);
+}
+
+void CPU::extendedOpcode0xAF() {
+	RES(5, &A);
+}
+
+void CPU::extendedOpcode0xB0() {
+	RES(6, &B);
+}
+
+void CPU::extendedOpcode0xB1() {
+	RES(6, &C);
+}
+
+void CPU::extendedOpcode0xB2() {
+	RES(6, &D);
+}
+
+void CPU::extendedOpcode0xB3() {
+	RES(6, &E);
+}
+
+void CPU::extendedOpcode0xB4() {
+	RES(6, &H);
+}
+
+void CPU::extendedOpcode0xB5() {
+	RES(6, &L);
+}
+
+void CPU::extendedOpcode0xB6() {
+	uint8_t imm = mmu->get(HL.getRegister());
+	RES(6, &imm);
+}
+
+void CPU::extendedOpcode0xB7() {
+	RES(6, &A);
+}
+
+void CPU::extendedOpcode0xB8() {
+	RES(7, &B);
+}
+
+void CPU::extendedOpcode0xB9() {
+	RES(7, &C);
+}
+
+void CPU::extendedOpcode0xBA() {
+	RES(7, &D);
+}
+
+void CPU::extendedOpcode0xBB() {
+	RES(7, &E);
+}
+
+void CPU::extendedOpcode0xBC() {
+	RES(7, &H);
+}
+
+void CPU::extendedOpcode0xBD() {
+	RES(7, &L);
+}
+
+void CPU::extendedOpcode0xBE() {
+	uint8_t imm = mmu->get(HL.getRegister());
+	RES(7, &imm);
+}
+
+void CPU::extendedOpcode0xBF() {
+	RES(7, &A);
+}
+
+void CPU::extendedOpcode0xC0() {
+	SET(0, &B);
+}
+
+void CPU::extendedOpcode0xC1() {
+	SET(0, &C);
+}
+
+void CPU::extendedOpcode0xC2() {
+	SET(0, &D);
+}
+
+void CPU::extendedOpcode0xC3() {
+	SET(0, &E);
+}
+
+void CPU::extendedOpcode0xC4() {
+	SET(0, &H);
+}
+
+void CPU::extendedOpcode0xC5() {
+	SET(0, &L);
+}
+
+void CPU::extendedOpcode0xC6() {
+	uint8_t imm = mmu->get(HL.getRegister());
+	SET(0, &imm);
+}
+
+void CPU::extendedOpcode0xC7() {
+	SET(0, &A);
+}
+
+void CPU::extendedOpcode0xC8() {
+	SET(1, &B);
+}
+
+void CPU::extendedOpcode0xC9() {
+	SET(1, &C);
+}
+
+void CPU::extendedOpcode0xCA() {
+	SET(1, &D);
+}
+
+void CPU::extendedOpcode0xCB() {
+	SET(1, &E);
+}
+
+void CPU::extendedOpcode0xCC() {
+	SET(1, &H);
+}
+
+void CPU::extendedOpcode0xCD() {
+	SET(1, &L);
+}
+
+void CPU::extendedOpcode0xCE() {
+	uint8_t imm = mmu->get(HL.getRegister());
+	SET(1, &imm);
+}
+
+void CPU::extendedOpcode0xCF() {
+	SET(1, &A);
+}
+
+void CPU::extendedOpcode0xD0() {
+	SET(2, &B);
+}
+
+void CPU::extendedOpcode0xD1() {
+	SET(2, &C);
+}
+
+void CPU::extendedOpcode0xD2() {
+	SET(2, &D);
+}
+
+void CPU::extendedOpcode0xD3() {
+	SET(2, &E);
+}
+
+void CPU::extendedOpcode0xD4() {
+	SET(2, &H);
+}
+
+void CPU::extendedOpcode0xD5() {
+	SET(2, &L);
+}
+
+void CPU::extendedOpcode0xD6() {
+	uint8_t imm = mmu->get(HL.getRegister());
+	SET(2, &imm);
+}
+
+void CPU::extendedOpcode0xD7() {
+	SET(2, &A);
+}
+
+void CPU::extendedOpcode0xD8() {
+	SET(3, &B);
+}
+
+void CPU::extendedOpcode0xD9() {
+	SET(3, &C);
+}
+
+void CPU::extendedOpcode0xDA() {
+	SET(3, &D);
+}
+
+void CPU::extendedOpcode0xDB() {
+	SET(3, &E);
+}
+
+void CPU::extendedOpcode0xDC() {
+	SET(3, &H);
+}
+
+void CPU::extendedOpcode0xDD() {
+	SET(3, &L);
+}
+
+void CPU::extendedOpcode0xDE() {
+	uint8_t imm = mmu->get(HL.getRegister());
+	SET(3, &imm);
+}
+
+void CPU::extendedOpcode0xDF() {
+	SET(3, &A);
+}
+
+void CPU::extendedOpcode0xE0() {
+	SET(4, &B);
+}
+
+void CPU::extendedOpcode0xE1() {
+	SET(4, &C);
+}
+
+void CPU::extendedOpcode0xE2() {
+	SET(4, &D);
+}
+
+void CPU::extendedOpcode0xE3() {
+	SET(4, &E);
+}
+
+void CPU::extendedOpcode0xE4() {
+	SET(4, &H);
+}
+
+void CPU::extendedOpcode0xE5() {
+	SET(4, &L);
+}
+
+void CPU::extendedOpcode0xE6() {
+	uint8_t imm = mmu->get(HL.getRegister());
+	SET(4, &imm);
+}
+
+void CPU::extendedOpcode0xE7() {
+	SET(4, &A);
+}
+
+void CPU::extendedOpcode0xE8() {
+	SET(5, &B);
+}
+
+void CPU::extendedOpcode0xE9() {
+	SET(5, &C);
+}
+
+void CPU::extendedOpcode0xEA() {
+	SET(5, &D);
+}
+
+void CPU::extendedOpcode0xEB() {
+	SET(5, &E);
+}
+
+void CPU::extendedOpcode0xEC() {
+	SET(5, &H);
+}
+
+void CPU::extendedOpcode0xED() {
+	SET(5, &L);
+}
+
+void CPU::extendedOpcode0xEE() {
+	uint8_t imm = mmu->get(HL.getRegister());
+	SET(5, &imm);
+}
+
+void CPU::extendedOpcode0xEF() {
+	SET(5, &A);
+}
+
+void CPU::extendedOpcode0xF0() {
+	SET(6, &B);
+}
+
+void CPU::extendedOpcode0xF1() {
+	SET(6, &C);
+}
+
+void CPU::extendedOpcode0xF2() {
+	SET(6, &D);
+}
+
+void CPU::extendedOpcode0xF3() {
+	SET(6, &E);
+}
+
+void CPU::extendedOpcode0xF4() {
+	SET(6, &H);
+}
+
+void CPU::extendedOpcode0xF5() {
+	SET(6, &L);
+}
+
+void CPU::extendedOpcode0xF6() {
+	uint8_t imm = mmu->get(HL.getRegister());
+	SET(6, &imm);
+}
+
+void CPU::extendedOpcode0xF7() {
+	SET(6, &A);
+}
+
+void CPU::extendedOpcode0xF8() {
+	SET(7, &B);
+}
+
+void CPU::extendedOpcode0xF9() {
+	SET(7, &C);
+}
+
+void CPU::extendedOpcode0xFA() {
+	SET(7, &D);
+}
+
+void CPU::extendedOpcode0xFB() {
+	SET(7, &E);
+}
+
+void CPU::extendedOpcode0xFC() {
+	SET(7, &H);
+}
+
+void CPU::extendedOpcode0xFD() {
+	SET(7, &L);
+}
+
+void CPU::extendedOpcode0xFE() {
+	uint8_t imm = mmu->get(HL.getRegister());
+	SET(7, &imm);
+}
+
+void CPU::extendedOpcode0xFF() {
+	SET(7, &A);
+}
