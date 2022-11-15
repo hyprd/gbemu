@@ -26,3 +26,11 @@ void PrintHex(uint8_t decimal) {
 void PrintHex16(uint16_t decimal) {
 	printf("%04X ", decimal);
 }
+
+void PrintBinary8(uint8_t hex) {
+	std::cout << std::bitset<8>(hex) << " ";
+}
+
+void PrintBinary16(uint16_t hex) {
+	std::cout << std::bitset<16>(hex) << " ";
+}

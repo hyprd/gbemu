@@ -406,35 +406,25 @@ void CPU::RLC(uint8_t * reg) {
 }
 
 void CPU::RL(uint8_t * reg) {
-	uint8_t bit = mmu->getBit(*reg, 7);
 	uint8_t carry = getFlag(FLAG_C);
-	carry ? mmu->setBit(*reg, 0) : mmu->clearBit(*reg, 0);
+	uint8_t msb = mmu->getBit(*reg, 0);
 	*reg <<= 1;
+	carry == 0 ? mmu->clearBit(*reg, 7) : mmu->setBit(*reg, 7);
 	*reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
 	clearFlag(FLAG_H);
-	if (bit) {
-		setFlag(FLAG_C);
-	}
-	else {
-		clearFlag(FLAG_C);
-	}
+	msb == 0 ? clearFlag(FLAG_C) : setFlag(FLAG_C);
 }
 
 void CPU::RR(uint8_t * reg) {
-	uint8_t bit = mmu->getBit(*reg, 0);
 	uint8_t carry = getFlag(FLAG_C);
-	carry ? mmu->setBit(*reg, 7) : mmu->clearBit(*reg, 7);
+	uint8_t msb = mmu->getBit(*reg, 0);
 	*reg >>= 1;
+	carry == 0 ? mmu->clearBit(*reg, 7) : mmu->setBit(*reg, 7);
 	*reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
 	clearFlag(FLAG_H);
-	if (bit) {
-		setFlag(FLAG_C);
-	}
-	else {
-		clearFlag(FLAG_C);
-	}
+	msb == 0 ? clearFlag(FLAG_C) : setFlag(FLAG_C);
 }
 
 void CPU::RRC(uint8_t* reg) {
@@ -482,19 +472,13 @@ void CPU::SRA(uint8_t * reg) {
 	}
 }
 
-void CPU::SRL(uint8_t * reg) {
+void CPU::SRL(uint8_t * reg) {	
+	mmu->getBit(*reg, 0) == 1 ? setFlag(FLAG_C) : clearFlag(FLAG_C);
 	*reg >>= 1;
-	uint8_t bit = mmu->getBit(*reg, 0);
 	mmu->clearBit(*reg, 7);
 	*reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
 	clearFlag(FLAG_H);
-	if (bit) {
-		setFlag(FLAG_C);
-	}
-	else {
-		clearFlag(FLAG_C);
-	}
 }
 
 void CPU::SWAP(uint8_t * reg) {
@@ -2198,7 +2182,7 @@ void CPU::Opcode0xED() {
 }
 
 void CPU::Opcode0xEE() {
-	XOR(mmu->get(pc));
+	XOR(mmu->get(pc + 1));
 	pc++;
 }
 
