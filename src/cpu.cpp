@@ -102,6 +102,7 @@ void CPU::execute(uint8_t inst) {
 		PrintMessage(Debug, "Operation completed");
 		dbg.close();
 	}
+	
 	(this->*opcodes[inst])();
 	if (!halted) pc++;
 }
@@ -291,6 +292,19 @@ void CPU::INC(uint8_t & reg) {
 	}
  }
 
+void CPU::INC_HL() {
+	mmu->set(HL.getRegister(), mmu->get(HL.getRegister()) + 1);
+	uint8_t eval = mmu->get(HL.getRegister());
+	eval == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
+	clearFlag(FLAG_N);
+	if ((eval & 0x0F) == 0) {
+		setFlag(FLAG_H);
+	}
+	else {
+		clearFlag(FLAG_H);
+	}
+}
+
 void CPU::INC(Register reg) {
 	reg.setRegister(reg.getRegister() + 1);
 }
@@ -309,6 +323,14 @@ void CPU::DEC(uint8_t & reg) {
 	else {
 		clearFlag(FLAG_H);
 	}
+}
+
+void CPU::DEC_HL() {
+	mmu->set(HL.getRegister(), mmu->get(HL.getRegister()) - 1);
+	uint8_t eval = mmu->get(HL.getRegister());
+	eval == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
+	setFlag(FLAG_N);
+	(eval & 0x0F) == 0x0F ? setFlag(FLAG_H) : clearFlag(FLAG_H);
 }
 
 void CPU::DEC(Register reg) {
@@ -1363,13 +1385,11 @@ void CPU::Opcode0x33() {
 }
 
 void CPU::Opcode0x34() {
-	uint8_t reg = mmu->get(HL.getRegister());
-	INC(reg);
+	INC_HL();
 }
 
 void CPU::Opcode0x35() {
-	uint8_t reg = mmu->get(HL.getRegister());
-	DEC(reg);
+	DEC_HL();
 }
 
 void CPU::Opcode0x36() {
@@ -1605,6 +1625,9 @@ void CPU::Opcode0x6D() {
 }
 
 void CPU::Opcode0x6E() {
+	/*PrintHex16(+pc);
+	PrintHex16(HL.getRegister());
+	PrintHex(mmu->get(HL.getRegister()));*/
 	LD(L, mmu->get(HL.getRegister()));
 }
 
