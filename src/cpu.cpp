@@ -202,8 +202,8 @@ void CPU::ADD(uint8_t reg) {
 
 void CPU::ADD_HL(Register reg) {
 	int eval = HL.getRegister() + reg.getRegister();
-	setFlag(FLAG_N);
-	eval & 0x1000 ? setFlag(FLAG_H) : clearFlag(FLAG_H);
+	clearFlag(FLAG_N);
+	(HL.getRegister() ^ reg.getRegister() ^ (eval & 0xFFFF)) & 0x1000 ? setFlag(FLAG_H) : clearFlag(FLAG_H);
 	eval & 0x10000 ? setFlag(FLAG_C) : clearFlag(FLAG_C);
 	HL.setRegister(eval);
 }
