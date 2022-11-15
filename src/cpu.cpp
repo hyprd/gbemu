@@ -535,7 +535,8 @@ void CPU::JP() {
 }
 
 void CPU::JP_HL() {
-	pc = HL.getRegister();
+	// -1 to prevent eventual increment after executing inst
+	pc = HL.getRegister() - 1;
 }
 
 void CPU::JP(int condition) {
