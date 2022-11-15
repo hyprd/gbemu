@@ -226,12 +226,14 @@ void CPU::ADC(uint8_t reg) {
 }
 
 void CPU::SUB(uint8_t reg) {
-	int8_t eval = static_cast<int8_t>(A - reg);
-	eval == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
-	setFlag(FLAG_N);
-	didHalfBorrow(eval) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
-	didBorrow(eval) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
+	int eval = A - reg;
+	int carries = A ^ reg ^ eval;
 	A = eval;
+	A == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
+	setFlag(FLAG_N);
+	((carries & 0x10) != 0) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
+	((carries & 0x100) != 0) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
+	
 }
 
 void CPU::SBC(uint8_t reg) {
