@@ -273,16 +273,10 @@ void CPU::XOR(uint8_t reg) {
 }
 
 void CPU::CP(uint8_t reg) {
-	uint8_t eval =  A - reg;
-	eval == 0 || eval == reg ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
+	A == reg ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	setFlag(FLAG_N);
-	if (eval > 0x0F) {
-		setFlag(FLAG_H);
-	}
-	else {
-		clearFlag(FLAG_H);
-	}
-	didCarry(eval) ? setFlag(FLAG_C) : clearFlag(FLAG_C); 
+	((A - reg) & 0x0F) > (A & 0x0F) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
+	(A < reg) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
 }
 
 void CPU::INC(uint8_t & reg) {
