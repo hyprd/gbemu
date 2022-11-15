@@ -207,7 +207,7 @@ void CPU::ADD_HL(uint16_t v) {
 }
 
 void CPU::ADD_SP() {
-	uint8_t imm = mmu->get(pc++);
+	uint8_t imm = mmu->get(pc + 1);
 	sp += imm;
 	clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
@@ -216,13 +216,14 @@ void CPU::ADD_SP() {
 }
 
 void CPU::ADC(uint8_t reg) {
-	uint8_t carry = mmu->getBit(F, FLAG_C);
-	uint8_t eval = static_cast<uint8_t>(A + reg + carry);
-	eval == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
-	clearFlag(FLAG_N);
-	didHalfCarry(eval) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
-	didCarry(eval) ? setFlag(FLAG_C) : setFlag(FLAG_C);
+	uint8_t carry = getFlag(FLAG_C);
+	int eval = A + (reg + carry);
+	int carries = A ^ reg ^ eval;
 	A = eval;
+	A == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
+	clearFlag(FLAG_N);
+	((carries & 0x10) != 0) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
+	((carries & 0x100) != 0) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
 }
 
 void CPU::SUB(uint8_t reg) {
@@ -233,7 +234,6 @@ void CPU::SUB(uint8_t reg) {
 	setFlag(FLAG_N);
 	((carries & 0x10) != 0) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
 	((carries & 0x100) != 0) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
-	
 }
 
 void CPU::SBC(uint8_t reg) {
@@ -2025,7 +2025,7 @@ void CPU::Opcode0xCD() {
 }
 
 void CPU::Opcode0xCE() {
-	ADC(mmu->get(pc));
+	ADC(mmu->get(pc + 1));
 	pc++;
 }
 
@@ -2116,7 +2116,7 @@ void CPU::Opcode0xDD() {
 }
 
 void CPU::Opcode0xDE() {
-	SBC(mmu->get(pc));
+	SBC(mmu->get(pc + 1));
 	pc++;
 }
 
@@ -2150,7 +2150,7 @@ void CPU::Opcode0xE5() {
 }
 
 void CPU::Opcode0xE6() {
-	AND(mmu->get(pc));
+	AND(mmu->get(pc + 1));
 	pc++;
 }
 
@@ -2224,7 +2224,7 @@ void CPU::Opcode0xF5() {
 }
 
 void CPU::Opcode0xF6() {
-	OR(mmu->get(pc));
+	OR(mmu->get(pc + 1));
 	pc++;
 }
 
