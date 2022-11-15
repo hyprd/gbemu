@@ -200,11 +200,12 @@ void CPU::ADD(uint8_t reg) {
 	A = eval;
 }
 
-void CPU::ADD_HL(uint16_t v) {
-	HL.setRegister(HL.getRegister() + v);
-	clearFlag(FLAG_N);
-	didHalfCarry16(HL.getRegister(), v) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
-	didCarry16(HL.getRegister(), v) ? setFlag(FLAG_C): clearFlag(FLAG_C);
+void CPU::ADD_HL(Register reg) {
+	int eval = HL.getRegister() + reg.getRegister();
+	setFlag(FLAG_N);
+	eval & 0x1000 ? setFlag(FLAG_H) : clearFlag(FLAG_H);
+	eval & 0x10000 ? setFlag(FLAG_C) : clearFlag(FLAG_C);
+	HL.setRegister(eval);
 }
 
 void CPU::ADD_SP() {
@@ -1187,7 +1188,7 @@ void CPU::Opcode0x08() {
 }
 
 void CPU::Opcode0x09() {
-	ADD_HL(BC.getRegister());
+	ADD_HL(BC);
 }
 
 void CPU::Opcode0x0A() {
@@ -1254,7 +1255,7 @@ void CPU::Opcode0x18() {
 }
 
 void CPU::Opcode0x19() {
-	ADD_HL(DE.getRegister());
+	ADD_HL(DE);
 }
 
 void CPU::Opcode0x1A() {
@@ -1332,7 +1333,7 @@ void CPU::Opcode0x28() {
 }
 
 void CPU::Opcode0x29() {
-	ADD_HL(HL.getRegister());
+	ADD_HL(HL);
 }
 
 void CPU::Opcode0x2A() {
@@ -1411,7 +1412,7 @@ void CPU::Opcode0x38() {
 }
 
 void CPU::Opcode0x39() {
-	ADD_HL(sp);
+	ADD_SP();
 }
 
 void CPU::Opcode0x3A() {

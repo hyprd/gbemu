@@ -67,7 +67,7 @@ public:
 	void LD(uint8_t& reg, uint16_t address); // LD X,(YZ), LD X,d16
 
 	void ADD(uint8_t reg);
-	void ADD_HL(uint16_t v);
+	void ADD_HL(Register reg);
 	void ADD_SP();
 	void ADC(uint8_t reg);
 
