@@ -88,14 +88,12 @@ public:
 	void DEC(Register reg);
 	void DEC_SP();
 
-	void RLA();
 	void RLC(uint8_t * reg);
-	void RRA();
 	void RLCA();
 	void RRCA();
-	void RL(uint8_t * reg);
+	void RL(uint8_t * reg, bool branch = false);
 	void RRC(uint8_t * reg);
-	void RR(uint8_t * reg);
+	void RR(uint8_t * reg, bool branch = false);
 	void SLA(uint8_t * reg);
 	void SRA(uint8_t * reg);
 	void SRL(uint8_t * reg);

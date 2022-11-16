@@ -98,7 +98,7 @@ void CPU::execute(uint8_t inst) {
 		" L: " << std::setw(2) << +*HL.low << 
 		" SP: " << std::setw(4) << +sp << 
 		" PC: " << std::setw(4) << +pc << "\n";
-	if (++count == 49999) {
+	if (++count == 149999) {
 		PrintMessage(Debug, "Operation completed");
 		dbg.close();
 	}
@@ -368,39 +368,6 @@ void CPU::RRCA() {
 	}
 }
 
-/* 
-	The only difference between this function and RLCA
-	is to ignore assigning bit 7 to bit 0. The 'C' in 
-	'RLCA' is circular!
-*/
-void CPU::RLA() {
-	uint8_t bit = mmu->getBit(A, 7);
-	A <<= 1;
-	clearFlag(FLAG_Z);
-	clearFlag(FLAG_N);
-	clearFlag(FLAG_H);
-	if (bit) {
-		setFlag(FLAG_C);
-	}
-	else {
-		clearFlag(FLAG_C);
-	}
-}
-
-void CPU::RRA() {
-	uint8_t bit = mmu->getBit(A, 0);
-	A >>= 1;
-	clearFlag(FLAG_Z);
-	clearFlag(FLAG_N);
-	clearFlag(FLAG_H);
-	if (bit) {
-		setFlag(FLAG_C);
-	}
-	else {
-		clearFlag(FLAG_C);
-	}
-}
-
 void CPU::RLC(uint8_t * reg) {
 	uint8_t bit = mmu->getBit(*reg, 7);
 	*reg <<= 1;
@@ -416,26 +383,37 @@ void CPU::RLC(uint8_t * reg) {
 	}
 }
 
-void CPU::RL(uint8_t * reg) {
+void CPU::RL(uint8_t * reg, bool branch) {
 	uint8_t carry = getFlag(FLAG_C);
 	uint8_t msb = mmu->getBit(*reg, 0);
 	*reg <<= 1;
 	carry == 0 ? mmu->clearBit(*reg, 7) : mmu->setBit(*reg, 7);
-	*reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
+	if (branch) {
+		clearFlag(FLAG_Z);
+	}
+	else {
+		*reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
+	}
 	clearFlag(FLAG_N);
 	clearFlag(FLAG_H);
 	msb == 0 ? clearFlag(FLAG_C) : setFlag(FLAG_C);
 }
 
-void CPU::RR(uint8_t * reg) {
+void CPU::RR(uint8_t * reg, bool branch) {
 	uint8_t carry = getFlag(FLAG_C);
 	uint8_t msb = mmu->getBit(*reg, 0);
 	*reg >>= 1;
 	carry == 0 ? mmu->clearBit(*reg, 7) : mmu->setBit(*reg, 7);
-	*reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
+	if (branch) {
+		clearFlag(FLAG_Z);
+	}
+	else {
+		*reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
+	}
 	clearFlag(FLAG_N);
 	clearFlag(FLAG_H);
 	msb == 0 ? clearFlag(FLAG_C) : setFlag(FLAG_C);
+	
 }
 
 void CPU::RRC(uint8_t* reg) {
@@ -1240,7 +1218,7 @@ void CPU::Opcode0x16() {
 }
 
 void CPU::Opcode0x17() {
-	RLA();
+	RL(&A, true);
 }
 
 void CPU::Opcode0x18() {
@@ -1273,7 +1251,7 @@ void CPU::Opcode0x1E() {
 }
 
 void CPU::Opcode0x1F() {
-	RR(&A);
+	RR(&A, true);
 }
 
 void CPU::Opcode0x20() {
