@@ -102,7 +102,6 @@ void CPU::execute(uint8_t inst) {
 		PrintMessage(Debug, "Operation completed");
 		dbg.close();
 	}
-	
 	(this->*opcodes[inst])();
 	if (!halted) pc++;
 }
@@ -144,8 +143,7 @@ void CPU::clearFlag(uint8_t flag) {
 }
 
 void CPU::getFlags() {
-	std::bitset<8> flags(*AF.low);
-	std::cout << "FLAGS " << flags.to_string() << std::endl;
+	std::cout << "FLAGS " << std::bitset<8>(*AF.low) << std::endl;
 }
 
 void CPU::PUSHSTACK16(uint16_t word) {
@@ -182,7 +180,15 @@ void CPU::LD(uint8_t& reg, uint16_t address) {
 /* ARITHMETIC FUNCTIONS */
 
 void CPU::ADD(uint8_t reg) {
-	uint8_t eval = static_cast<uint8_t>(A + reg);
+	uint8_t carry = getFlag(FLAG_C);
+	int eval = A + reg;
+	int carries = A ^ reg ^ eval;
+	A = eval;
+	A == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
+	clearFlag(FLAG_N);
+	((carries & 0x10) != 0) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
+	((carries & 0x100) != 0) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
+	/*uint8_t eval = static_cast<uint8_t>(A + reg);
 	eval == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
 	if ((A + reg) > 0xF) {
@@ -197,7 +203,7 @@ void CPU::ADD(uint8_t reg) {
 	else {
 		clearFlag(FLAG_C);
 	}
-	A = eval;
+	A = eval;*/
 }
 
 void CPU::ADD_HL(Register reg) {
