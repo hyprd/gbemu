@@ -98,7 +98,7 @@ void CPU::execute(uint8_t inst) {
 		" L: " << std::setw(2) << +*HL.low << 
 		" SP: " << std::setw(4) << +sp << 
 		" PC: " << std::setw(4) << +pc << "\n";
-	if (++count == 50000) {
+	if (++count == 49999) {
 		PrintMessage(Debug, "Operation completed");
 		dbg.close();
 	}
@@ -188,22 +188,6 @@ void CPU::ADD(uint8_t reg) {
 	clearFlag(FLAG_N);
 	((carries & 0x10) != 0) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
 	((carries & 0x100) != 0) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
-	/*uint8_t eval = static_cast<uint8_t>(A + reg);
-	eval == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
-	clearFlag(FLAG_N);
-	if ((A + reg) > 0xF) {
-		setFlag(FLAG_H);
-	}
-	else {
-		clearFlag(FLAG_H);
-	}
-	if ((A + reg) > 0xFF) {
-		setFlag(FLAG_C);
-	}
-	else {
-		clearFlag(FLAG_C);
-	}
-	A = eval;*/
 }
 
 void CPU::ADD_HL(Register reg) {
@@ -247,12 +231,13 @@ void CPU::SUB(uint8_t reg) {
 
 void CPU::SBC(uint8_t reg) {
 	uint8_t carry = getFlag(FLAG_C);
-	int8_t eval = static_cast<int8_t>(A - (reg + carry));
-	eval == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
-	setFlag(FLAG_N);
-	didHalfBorrow(eval) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
-	didBorrow(eval) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
+	int eval = A - (reg + carry);
+	int carries = A ^ reg ^ eval;
 	A = eval;
+	A == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
+	setFlag(FLAG_N);
+	((carries & 0x10) != 0) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
+	((carries & 0x100) != 0) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
 }
 
 /* LOGICAL FUNCTIONS */
