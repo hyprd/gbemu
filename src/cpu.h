@@ -42,13 +42,6 @@ public:
 	void cycle();
 	void execute(uint8_t inst);
 	void bindOpcodes();
-	
-	bool didCarry(uint8_t reg);
-	bool didHalfCarry(uint8_t reg);
-	bool didBorrow(uint8_t reg);
-	bool didHalfBorrow(uint8_t reg);
-	bool didCarry16(uint16_t reg, uint16_t reg2);
-	bool didHalfCarry16(uint16_t reg, uint16_t reg2);
 
 	uint8_t getFlag(uint8_t flag);
 	void setFlag(uint8_t flag);

@@ -106,30 +106,6 @@ void CPU::execute(uint8_t inst) {
 	if (!halted) pc++;
 }
 
-bool CPU::didCarry(uint8_t reg) {
-	return (A + reg) > 0xFF;
-}
-
-bool CPU::didHalfCarry(uint8_t reg) {
-	return (reg & 0x0F) == 0x0F;
-}
-
-bool CPU::didBorrow(uint8_t reg) {
-	return static_cast<int8_t>((A - reg)) < 0x0;
-}
-
-bool CPU::didHalfBorrow(uint8_t reg) {
-	return static_cast<int8_t>((A & 0x0F) - (reg & 0x0F)) < 0x0;
-}
-
-bool CPU::didCarry16(uint16_t reg, uint16_t reg2) {
-	return (reg + reg2) > 0xFFFF;
-}
-
-bool CPU::didHalfCarry16(uint16_t reg, uint16_t reg2) {
-	return ((reg & 0x00FF) + (reg2 & 0x00FF)) > 0x00FF;
-}
-
 uint8_t CPU::getFlag(uint8_t flag) {
 	return mmu->getBit(F, flag);
 }
@@ -413,7 +389,6 @@ void CPU::RR(uint8_t * reg, bool branch) {
 	clearFlag(FLAG_N);
 	clearFlag(FLAG_H);
 	msb == 0 ? clearFlag(FLAG_C) : setFlag(FLAG_C);
-	
 }
 
 void CPU::RRC(uint8_t* reg) {
