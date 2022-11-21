@@ -29,19 +29,19 @@ uint8_t MMU::get(uint16_t address) {
 void MMU::setBit(uint8_t& byte, uint8_t bit) {
     std::bitset<8> b(byte);
     b.set(bit);
-    byte = b.to_ulong();
+    byte = static_cast<uint8_t>(b.to_ulong());
 }
 
 void MMU::clearBit(uint8_t& byte, uint8_t bit) {
     std::bitset<8> b(byte);
     b.reset(bit);
-    byte = b.to_ulong();
+    byte = static_cast<uint8_t>(b.to_ulong());
 }
 
 void MMU::toggleBit(uint8_t& byte, uint8_t bit) {
     std::bitset<8> b(byte);
     b.flip(bit);
-    byte = b.to_ulong();
+    byte = static_cast<uint8_t>(b.to_ulong());
 }
 
 uint8_t MMU::getBit(uint8_t byte, uint8_t bit) {

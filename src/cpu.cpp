@@ -181,7 +181,7 @@ void CPU::ADD_SP() {
 	clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
 	((sp & 0x0FFF) + imm) > 0x0FFF ? setFlag(FLAG_H) : clearFlag(FLAG_H);
-	didCarry16(sp, static_cast<uint16_t>(imm)) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
+	(sp + static_cast<uint16_t>(imm)) > 0xFFFF ? setFlag(FLAG_C) : clearFlag(FLAG_C);
 }
 
 void CPU::ADC(uint8_t reg) {
