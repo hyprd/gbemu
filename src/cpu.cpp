@@ -88,17 +88,17 @@ void CPU::cycle() {
 void CPU::execute(uint8_t inst) {
 	/* here lies the forbidden code  */
 	dbg << std::hex << std::uppercase << std::setfill('0') <<
-		"A: " << std::setw(2) << +*AF.high << 
-		" F: " << std::setw(2) << +*AF.low	<< 
-		" B: " << std::setw(2) << +*BC.high << 
-		" C: " << std::setw(2) << +*BC.low << 
-		" D: " << std::setw(2) << +*DE.high << 
-		" E: " << std::setw(2) << +*DE.low << 
-		" H: " << std::setw(2) << +*HL.high << 
-		" L: " << std::setw(2) << +*HL.low << 
-		" SP: " << std::setw(4) << +sp << 
+		"A: " << std::setw(2) << +*AF.high <<
+		" F: " << std::setw(2) << +*AF.low <<
+		" B: " << std::setw(2) << +*BC.high <<
+		" C: " << std::setw(2) << +*BC.low <<
+		" D: " << std::setw(2) << +*DE.high <<
+		" E: " << std::setw(2) << +*DE.low <<
+		" H: " << std::setw(2) << +*HL.high <<
+		" L: " << std::setw(2) << +*HL.low <<
+		" SP: " << std::setw(4) << +sp <<
 		" PC: " << std::setw(4) << +pc << "\n";
-	if (++count == 149999) {
+	if (++count == 243274) {
 		PrintMessage(Debug, "Operation completed");
 		dbg.close();
 	}
@@ -2182,13 +2182,12 @@ void CPU::Opcode0xEF() {
 }
 
 void CPU::Opcode0xF0() {
-	/* 
-		This value needs to be hardcoded until LCD support is added.
-
-		See 0xFE.
-	*/
-	A = 0x90;
-	//LD(A, static_cast<uint16_t>(0xFF00 + (mmu->get(pc + 1))));
+	if (mmu->get(pc + 1) == 0x44) { // see 0xFE
+		A = 0x90; 
+	}
+	else {
+		LD(A, mmu->get(0xFF00 + mmu->get(pc + 1)));
+	}
 	pc++;
 }
 
