@@ -1230,7 +1230,7 @@ void CPU::Opcode0x1F() {
 }
 
 void CPU::Opcode0x20() {
-	if (!getFlag(FLAG_Z)) {
+	if (getFlag(FLAG_Z) == 0) {
 		JR();
 	}
 	else {
@@ -1270,7 +1270,7 @@ void CPU::Opcode0x27() {
 }
 
 void CPU::Opcode0x28() {
-	if (getFlag(FLAG_Z)) {
+	if (getFlag(FLAG_Z) == 1) {
 		JR();
 	}
 	else {
@@ -1309,7 +1309,7 @@ void CPU::Opcode0x2F() {
 }
 
 void CPU::Opcode0x30() {
-	if (!getFlag(FLAG_C)) {
+	if (getFlag(FLAG_C) == 0) {
 		JR();
 	}
 	else {
@@ -1349,7 +1349,7 @@ void CPU::Opcode0x37() {
 }
 
 void CPU::Opcode0x38() {
-	if (getFlag(FLAG_C)) {
+	if (getFlag(FLAG_C) == 1) {
 		JR();
 	}
 	else {
@@ -1904,11 +1904,8 @@ void CPU::Opcode0xBF() {
 }
 
 void CPU::Opcode0xC0() {
-	if (!getFlag(FLAG_Z)) {
+	if (getFlag(FLAG_Z) == 0) {
 		RET();
-	}
-	else {
-		pc++;
 	}
 }
 
