@@ -1127,7 +1127,7 @@ void CPU::Opcode0x07() {
 }
 
 void CPU::Opcode0x08() {
-	uint16_t word = mmu->get(mmu->formWord(mmu->get(pc), mmu->get(pc + 1)));
+	uint16_t word = mmu->formWord(mmu->get(pc + 2), mmu->get(pc + 1));
 	mmu->set(word, static_cast<uint8_t>(sp & 0xFF));
 	mmu->set(word + 1, static_cast<uint8_t>((sp & 0xFF00) >> 8));
 	pc += 2;
