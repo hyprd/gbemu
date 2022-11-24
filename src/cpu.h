@@ -72,11 +72,11 @@ public:
 	void XOR(uint8_t reg);
 	void CP(uint8_t reg);
 
-	void INC(uint8_t & reg);
+	void INC(uint8_t * reg);
 	void INC(Register reg);
 	void INC_HL();
 	void INC_SP();
-	void DEC(uint8_t & reg);
+	void DEC(uint8_t * reg);
 	void DEC_HL();
 	void DEC(Register reg);
 	void DEC_SP();

@@ -98,7 +98,7 @@ void CPU::execute(uint8_t inst) {
 		" L: " << std::setw(2) << +*HL.low <<
 		" SP: " << std::setw(4) << +sp <<
 		" PC: " << std::setw(4) << +pc << "\n";
-	if (++count == 243274) {
+	if (++count == 300000) {
 		PrintMessage(Debug, "Operation completed");
 		dbg.close();
 	}
@@ -124,7 +124,7 @@ void CPU::getFlags() {
 
 void CPU::PUSHSTACK16(uint16_t word) {
 	mmu->set(sp - 1, static_cast<uint8_t>((word >> 8) & 0xFF));
-	mmu->set(sp - 2, static_cast<uint8_t>(word & 0xFF));
+	mmu->set(sp - 2, static_cast<uint8_t>(word & 0xFF)); 
 	sp -= 2;
 }
 
@@ -249,11 +249,11 @@ void CPU::CP(uint8_t reg) {
 	(A < reg) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
 }
 
-void CPU::INC(uint8_t & reg) {
-	reg += 1;
-	reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
+void CPU::INC(uint8_t * reg) {
+	*reg += 1;
+	*reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
-	if ((reg & 0x0F) == 0) {
+	if ((*reg & 0x0F) == 0) {
 		setFlag(FLAG_H);
 	}
 	else {
@@ -282,11 +282,11 @@ void CPU::INC_SP() {
 	sp += 1;
 }
 
-void CPU::DEC(uint8_t & reg) {
-	reg -= 1;
-	reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
+void CPU::DEC(uint8_t * reg) {
+	*reg -= 1;
+	*reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	setFlag(FLAG_N);
-	if ((reg & 0x0F) == 0x0F) {
+	if ((*reg & 0x0F) == 0x0F) {
 		setFlag(FLAG_H);
 	}
 	else {
@@ -530,9 +530,9 @@ void CPU::RETI() {
 }
 
 void CPU::RST(uint8_t vec) {
-	PUSHSTACK16(pc);
-	uint8_t pl = RSTJumpVectors[+vec];
-	pc = mmu->formWord(0, pl);
+	PUSHSTACK16(pc + 1);
+	uint8_t v = RSTJumpVectors[+vec];
+	pc = mmu->formWord(0, v) - 1;
 }
 
 void CPU::DAA() {
@@ -1110,11 +1110,11 @@ void CPU::Opcode0x03() {
 }
 
 void CPU::Opcode0x04() {
-	INC(B);
+	INC(&B);
 }
 
 void CPU::Opcode0x05() {
-	DEC(B);
+	DEC(&B);
 }
 
 void CPU::Opcode0x06() {
@@ -1146,11 +1146,11 @@ void CPU::Opcode0x0B() {
 }
 
 void CPU::Opcode0x0C() {
-	INC(C);
+	INC(&C);
 }
 
 void CPU::Opcode0x0D() {
-	DEC(C);
+	DEC(&C);
 }
 
 void CPU::Opcode0x0E() {
@@ -1180,11 +1180,11 @@ void CPU::Opcode0x13() {
 }
 
 void CPU::Opcode0x14() {
-	INC(D);
+	INC(&D);
 }
 
 void CPU::Opcode0x15() {
-	DEC(D);
+	DEC(&D);
 }
 
 void CPU::Opcode0x16() {
@@ -1213,11 +1213,11 @@ void CPU::Opcode0x1B() {
 }
 
 void CPU::Opcode0x1C() {
-	INC(E);
+	INC(&E);
 }
 
 void CPU::Opcode0x1D() {
-	DEC(E);
+	DEC(&E);
 }
 
 void CPU::Opcode0x1E() {
@@ -1253,11 +1253,11 @@ void CPU::Opcode0x23() {
 }
 
 void CPU::Opcode0x24() {
-	INC(H);
+	INC(&H);
 }
 
 void CPU::Opcode0x25() {
-	DEC(H);
+	DEC(&H);
 }
 
 void CPU::Opcode0x26() {
@@ -1292,11 +1292,11 @@ void CPU::Opcode0x2B() {
 }
 
 void CPU::Opcode0x2C() {
-	INC(L);
+	INC(&L);
 }
 
 void CPU::Opcode0x2D() {
-	DEC(L);
+	DEC(&L);
 }
 
 void CPU::Opcode0x2E() {
@@ -1371,11 +1371,11 @@ void CPU::Opcode0x3B() {
 }
 
 void CPU::Opcode0x3C() {
-	INC(A);
+	INC(&A);
 }
 
 void CPU::Opcode0x3D() {
-	DEC(A);
+	DEC(&A);
 }
 
 void CPU::Opcode0x3E() {
