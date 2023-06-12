@@ -19,7 +19,7 @@ void MMU::load(std::string file) {
 }
 
 void MMU::set(uint16_t address, uint8_t value) {
-    if (address == 0xFF01) PrintHex(value);
+    if (address == 0xFF01) std::cout << value;
     memory[address] = value;
 }
 

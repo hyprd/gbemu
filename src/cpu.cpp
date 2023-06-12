@@ -88,16 +88,20 @@ void CPU::cycle() {
 void CPU::execute(uint8_t inst) {
 	/* here lies the forbidden code  */
 	dbg << std::hex << std::uppercase << std::setfill('0') <<
-		"A: " << std::setw(2) << +*AF.high <<
-		" F: " << std::setw(2) << +*AF.low <<
-		" B: " << std::setw(2) << +*BC.high <<
-		" C: " << std::setw(2) << +*BC.low <<
-		" D: " << std::setw(2) << +*DE.high <<
-		" E: " << std::setw(2) << +*DE.low <<
-		" H: " << std::setw(2) << +*HL.high <<
-		" L: " << std::setw(2) << +*HL.low <<
-		" SP: " << std::setw(4) << +sp <<
-		" PC: " << std::setw(4) << +pc << "\n";
+		"A:" << std::setw(2) << +*AF.high <<
+		" F:" << std::setw(2) << +*AF.low <<
+		" B:" << std::setw(2) << +*BC.high <<
+		" C:" << std::setw(2) << +*BC.low <<
+		" D:" << std::setw(2) << +*DE.high <<
+		" E:" << std::setw(2) << +*DE.low <<
+		" H:" << std::setw(2) << +*HL.high <<
+		" L:" << std::setw(2) << +*HL.low <<
+		" SP:" << std::setw(4) << +sp <<
+		" PC:" << std::setw(4) << +pc <<
+		" PCMEM:" << std::setw(2) << +mmu->get(pc) <<
+		"," << std::setw(2) << +mmu->get(pc + 1) <<
+		"," << std::setw(2) << +mmu->get(pc + 2) <<
+		"," << std::setw(2) << +mmu->get(pc + 3) << "\n";
 	if (++count == 300000) {
 		PrintMessage(Debug, "Operation completed");
 		dbg.close();
@@ -549,11 +553,11 @@ void CPU::NOP() {
 }
 
 void CPU::CCF() {
-	mmu->toggleBit(F, FLAG_C);
+	F ^= 1UL << FLAG_C;
 }
 
 void CPU::SCF() {
-	setFlag(FLAG_C);
+	F |= 1UL << FLAG_C;
 }
 
 void CPU::DI() {
@@ -2165,6 +2169,11 @@ void CPU::Opcode0xF0() {
 
 void CPU::Opcode0xF1() {
 	POPSTACK(AF);
+	/* 
+	*	PUSH BC moves value $1301 into AF, but F ignores 01 because the flags
+	*	register shouldn't be modified. Therefore mask 0xF0 to AF.
+	*/
+	*AF.low &= 0xF0;
 }
 
 void CPU::Opcode0xF2() {
