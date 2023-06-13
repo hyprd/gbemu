@@ -102,10 +102,10 @@ void CPU::execute(uint8_t inst) {
 		"," << std::setw(2) << +mmu->get(pc + 1) <<
 		"," << std::setw(2) << +mmu->get(pc + 2) <<
 		"," << std::setw(2) << +mmu->get(pc + 3) << "\n";
-	if (++count == 300000) {
+	/*if (++count == 300000) {
 		PrintMessage(Debug, "Operation completed");
 		dbg.close();
-	}
+	}*/
 	(this->*opcodes[inst])();
 	if (!halted) pc++;
 }
@@ -540,7 +540,20 @@ void CPU::RST(uint8_t vec) {
 }
 
 void CPU::DAA() {
-	PrintMessage(Debug, "Implement DAA!");
+	if (!getFlag(FLAG_N)) {
+		if (getFlag(FLAG_C) || A > 0x99) {
+			A += 0x60;
+			setFlag(FLAG_C);
+		}
+		if (getFlag(FLAG_H) || (A & 0x0F) > 0x09) {
+			A += 0x06;	
+		}
+	} else {
+		if (getFlag(FLAG_C)) A -= 0x60;
+		if (getFlag(FLAG_H)) A -= 0x06;
+	}
+	clearFlag(FLAG_H);
+	A == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 }
 
 void CPU::CPL() {
