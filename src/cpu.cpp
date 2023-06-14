@@ -2221,18 +2221,14 @@ void CPU::Opcode0xF7() {
 }
 
 void CPU::Opcode0xF8() {
-	int16_t d = sp + mmu->get(pc);
-	HL.setRegister(sp + mmu->get(pc));
+	int imm = static_cast<char>(mmu->get(pc + 1));
+	int eval = sp + imm;
+	int carries = sp ^ imm ^ eval;
+	HL.setRegister(imm + sp);
 	clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
-	if (d > 0x0FFF) {
-		setFlag(FLAG_H);
-		setFlag(FLAG_C);
-	}
-	else {
-		clearFlag(FLAG_H);
-		clearFlag(FLAG_C);
-	}
+	((carries & 0x10) != 0) ? setFlag(FLAG_H) : clearFlag(FLAG_H);
+	((carries & 0x100) != 0) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
 	pc++;
 }
 
