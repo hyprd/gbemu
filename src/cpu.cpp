@@ -170,9 +170,9 @@ void CPU::ADD(uint8_t reg) {
 	((carries & 0x100) != 0) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
 }
 
-void CPU::ADD_HL(Register reg) {
-	int eval = HL.getRegister() + reg.getRegister();
-	int carries = HL.getRegister() ^ reg.getRegister() ^ eval;
+void CPU::ADD_HL(uint16_t value) {
+	int eval = HL.getRegister() + value;
+	int carries = HL.getRegister() ^ value ^ eval;
 	clearFlag(FLAG_N);
 	carries & 0x1000 ? setFlag(FLAG_H) : clearFlag(FLAG_H);
 	carries & 0x10000 ? setFlag(FLAG_C) : clearFlag(FLAG_C);
@@ -1151,7 +1151,7 @@ void CPU::Opcode0x08() {
 }
 
 void CPU::Opcode0x09() {
-	ADD_HL(BC);
+	ADD_HL(BC.getRegister());
 }
 
 void CPU::Opcode0x0A() {
@@ -1218,7 +1218,7 @@ void CPU::Opcode0x18() {
 }
 
 void CPU::Opcode0x19() {
-	ADD_HL(DE);
+	ADD_HL(DE.getRegister());
 }
 
 void CPU::Opcode0x1A() {
@@ -1296,7 +1296,7 @@ void CPU::Opcode0x28() {
 }
 
 void CPU::Opcode0x29() {
-	ADD_HL(HL);
+	ADD_HL(HL.getRegister());
 }
 
 void CPU::Opcode0x2A() {
@@ -1375,7 +1375,7 @@ void CPU::Opcode0x38() {
 }
 
 void CPU::Opcode0x39() {
-	ADD_SP();
+	ADD_HL(sp);
 }
 
 void CPU::Opcode0x3A() {
