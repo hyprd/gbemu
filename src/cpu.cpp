@@ -102,6 +102,7 @@ void CPU::execute(uint8_t inst) {
 		"," << std::setw(2) << +mmu->get(pc + 1) <<
 		"," << std::setw(2) << +mmu->get(pc + 2) <<
 		"," << std::setw(2) << +mmu->get(pc + 3) << "\n";
+	count++;
 	/*if (++count == 300000) {
 		PrintMessage(Debug, "Operation completed");
 		dbg.close();
@@ -180,12 +181,17 @@ void CPU::ADD_HL(uint16_t value) {
 }
 
 void CPU::ADD_SP() {
-	uint8_t imm = mmu->get(pc + 1);
-	sp += imm;
+	// Cast to char (signed integers love when you do this). 
+	int imm = static_cast<char>(mmu->get(pc + 1));
+	int eval = sp + imm;
+	int carries = sp ^ imm ^ eval;
+	sp = eval;
 	clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
-	((sp & 0x0FFF) + imm) > 0x0FFF ? setFlag(FLAG_H) : clearFlag(FLAG_H);
-	(sp + static_cast<uint16_t>(imm)) > 0xFFFF ? setFlag(FLAG_C) : clearFlag(FLAG_C);
+	// Despite being 16-bit arithmetic, half-carry is performed on bits 3, 4 in this instruction.
+	((carries & 0x10) != 0) ? setFlag(FLAG_H) : clearFlag(FLAG_H); 
+	((carries & 0x100) != 0) ? setFlag(FLAG_C) : clearFlag(FLAG_C);
+	pc++;
 }
 
 void CPU::ADC(uint8_t reg) {
