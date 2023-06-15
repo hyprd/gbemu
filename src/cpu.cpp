@@ -1306,7 +1306,7 @@ void CPU::Opcode0x29() {
 }
 
 void CPU::Opcode0x2A() {
-	LD(A, HL.getRegister());
+	LD(A, mmu->get(HL.getRegister()));
 	HL.setRegister(HL.getRegister() + 1);
 }
 
