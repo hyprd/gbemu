@@ -572,11 +572,15 @@ void CPU::NOP() {
 }
 
 void CPU::CCF() {
-	F ^= 1UL << FLAG_C;
+	mmu->toggleBit(*AF.low, FLAG_C);
+	clearFlag(FLAG_H);
+	clearFlag(FLAG_N);
 }
 
 void CPU::SCF() {
-	F |= 1UL << FLAG_C;
+	setFlag(FLAG_C);
+	clearFlag(FLAG_H);
+	clearFlag(FLAG_N);
 }
 
 void CPU::DI() {
