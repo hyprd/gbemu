@@ -2237,10 +2237,6 @@ void CPU::Opcode0xF9() {
 }
 
 void CPU::Opcode0xFA() {
-	if (count == 179909) {
-		PrintHex16(mmu->formWord(mmu->get(pc + 2), mmu->get(pc + 1)));
-		PrintHex16(mmu->get(mmu->formWord(mmu->get(pc + 2), mmu->get(pc + 1))));
-	}
 	LD(A, mmu->get(mmu->formWord(mmu->get(pc + 2), mmu->get(pc + 1))));
 	pc += 2;
 }
