@@ -103,10 +103,6 @@ void CPU::execute(uint8_t inst) {
 		"," << std::setw(2) << +mmu->get(pc + 2) <<
 		"," << std::setw(2) << +mmu->get(pc + 3) << "\n";
 	count++;
-	/*if (++count == 300000) {
-		PrintMessage(Debug, "Operation completed");
-		dbg.close();
-	}*/
 	(this->*opcodes[inst])();
 	if (!halted) pc++;
 }
@@ -371,34 +367,32 @@ void CPU::RLC(uint8_t * reg) {
 
 void CPU::RL(uint8_t * reg, bool branch) {
 	uint8_t carry = getFlag(FLAG_C);
-	uint8_t msb = mmu->getBit(*reg, 0);
+	(*reg & 0x80) != 0 ? setFlag(FLAG_C) : clearFlag(FLAG_C);
 	*reg <<= 1;
-	carry == 0 ? mmu->clearBit(*reg, 7) : mmu->setBit(*reg, 7);
-	if (branch) {
+	*reg |= carry;
+	clearFlag(FLAG_N);
+	clearFlag(FLAG_H);
+	if (branch) { // RLA
 		clearFlag(FLAG_Z);
 	}
 	else {
 		*reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	}
-	clearFlag(FLAG_N);
-	clearFlag(FLAG_H);
-	msb == 0 ? clearFlag(FLAG_C) : setFlag(FLAG_C);
 }
 
 void CPU::RR(uint8_t * reg, bool branch) {
 	uint8_t carry = getFlag(FLAG_C);
-	uint8_t msb = mmu->getBit(*reg, 0);
+	(*reg & 0x01) != 0 ? setFlag(FLAG_C) : clearFlag(FLAG_C);
 	*reg >>= 1;
-	carry == 0 ? mmu->clearBit(*reg, 7) : mmu->setBit(*reg, 7);
-	if (branch) {
+	*reg |= carry;
+	clearFlag(FLAG_N);
+	clearFlag(FLAG_H);
+	if (branch) { // RLA
 		clearFlag(FLAG_Z);
 	}
 	else {
 		*reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	}
-	clearFlag(FLAG_N);
-	clearFlag(FLAG_H);
-	msb == 0 ? clearFlag(FLAG_C) : setFlag(FLAG_C);
 }
 
 void CPU::RRC(uint8_t* reg) {
@@ -1150,7 +1144,7 @@ void CPU::Opcode0x06() {
 }
 
 void CPU::Opcode0x07() {
-	RLC(&A);
+	RLCA();
 }
 
 void CPU::Opcode0x08() {
