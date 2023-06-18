@@ -318,96 +318,46 @@ void CPU::DEC_SP() {
 
 /* BIT SHIFT FUNCTIONS*/
 
-void CPU::RLCA() {
-	uint8_t bit = mmu->getBit(A, 7);
-	A <<= 1;
-	clearFlag(FLAG_Z);
-	clearFlag(FLAG_N);
-	clearFlag(FLAG_H);
-	if (bit) {
-		mmu->setBit(A, 0);
-		setFlag(FLAG_C);
-	}
-	else {
-		mmu->clearBit(A, 0);
-		clearFlag(FLAG_C);
-	}
-}
-
-void CPU::RRCA() {
-	uint8_t bit = mmu->getBit(A, 0);
-	A >>= 1;
-	clearFlag(FLAG_Z);
-	clearFlag(FLAG_N);
-	clearFlag(FLAG_H);
-	if (bit) {
-		mmu->setBit(A, 7);
-		setFlag(FLAG_C);
-	}
-	else {
-		mmu->clearBit(A, 7);
-		clearFlag(FLAG_C);
-	}
-}
-
-void CPU::RLC(uint8_t * reg) {
-	uint8_t bit = mmu->getBit(*reg, 7);
-	*reg <<= 1;
-	// Set flag Z if operand is 0
-	*reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
-	if (bit) {
-		setFlag(FLAG_C);
-		mmu->setBit(*reg, 0);
-	}
-	else {
-		clearFlag(FLAG_C);
-		mmu->clearBit(*reg, 0);
-	}
-}
-
-void CPU::RL(uint8_t * reg, bool branch) {
+void CPU::RL(uint8_t* reg, bool branch) {
 	uint8_t carry = getFlag(FLAG_C);
 	(*reg & 0x80) != 0 ? setFlag(FLAG_C) : clearFlag(FLAG_C);
 	*reg <<= 1;
 	*reg |= carry;
+	clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
 	clearFlag(FLAG_H);
-	if (branch) { // RLA
-		clearFlag(FLAG_Z);
-	}
-	else {
-		*reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
-	}
+	if (!branch && (*reg == 0)) setFlag(FLAG_Z);
 }
 
-void CPU::RR(uint8_t * reg, bool branch) {
+void CPU::RR(uint8_t* reg, bool branch) {
 	uint8_t carry = getFlag(FLAG_C);
 	(*reg & 0x01) != 0 ? setFlag(FLAG_C) : clearFlag(FLAG_C);
 	*reg >>= 1;
-	*reg |= carry;
+	carry ? *reg |= 0x80 : *reg |= 0;
+	clearFlag(FLAG_Z);
 	clearFlag(FLAG_N);
 	clearFlag(FLAG_H);
-	if (branch) { // RLA
-		clearFlag(FLAG_Z);
-	}
-	else {
-		*reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
-	}
+	if (!branch && (*reg == 0)) setFlag(FLAG_Z);
 }
 
-void CPU::RRC(uint8_t* reg) {
-	uint8_t bit = mmu->getBit(*reg, 0);
+void CPU::RLC(uint8_t * reg, bool branch) {
+	(*reg & 0x80) != 0 ? setFlag(FLAG_C) : clearFlag(FLAG_C);
+	clearFlag(FLAG_Z);
+	clearFlag(FLAG_H);
+	clearFlag(FLAG_N);
+	*reg <<= 1;
+	if (getFlag(FLAG_C)) *reg |= 1; 
+	if (!branch && (*reg == 0)) setFlag(FLAG_Z);
+}
+
+void CPU::RRC(uint8_t* reg, bool branch) {
+	(*reg & 0x01) != 0 ? setFlag(FLAG_C) : clearFlag(FLAG_C);
+	clearFlag(FLAG_Z);
+	clearFlag(FLAG_H);
+	clearFlag(FLAG_N);
 	*reg >>= 1;
-	// Set flag Z if operand is 0
-	*reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
-	if (bit) {
-		setFlag(FLAG_C);
-		mmu->setBit(*reg, 7);
-	}
-	else {
-		clearFlag(FLAG_C);
-		mmu->clearBit(*reg, 7);
-	}
+	if (getFlag(FLAG_C)) *reg |= 0x80;
+	if (!branch && (*reg == 0)) setFlag(FLAG_Z);
 }
 
 void CPU::SLA(uint8_t * reg) {
@@ -563,6 +513,7 @@ void CPU::CPL() {
 }
 
 void CPU::NOP() {
+	return;
 }
 
 void CPU::CCF() {
@@ -1144,7 +1095,7 @@ void CPU::Opcode0x06() {
 }
 
 void CPU::Opcode0x07() {
-	RLCA();
+	RLC(&A, true);
 }
 
 void CPU::Opcode0x08() {
@@ -1180,7 +1131,7 @@ void CPU::Opcode0x0E() {
 }
 
 void CPU::Opcode0x0F() {
-	RRCA();
+	RRC(&A, true);
 }
 
 void CPU::Opcode0x10() {
