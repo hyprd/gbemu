@@ -1636,7 +1636,7 @@ void CPU::Opcode0x85() {
 }
 
 void CPU::Opcode0x86() {
-	ADD(mmu->get(pc));
+	ADD(mmu->get(HL.getRegister()));
 	pc++;
 }
 
