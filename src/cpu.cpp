@@ -81,7 +81,7 @@ void CPU::initialize() {
 	dbg = std::ofstream (f, std::ios::binary);
 }
 
-void CPU::cycle() {
+void CPU::cycle() { 
 	execute(mmu->memory[+pc]);
 }
 
@@ -1103,7 +1103,7 @@ void CPU::Opcode0x09() {
 }
 
 void CPU::Opcode0x0A() {
-	LD(A, mmu->get(BC.getRegister()));
+	LD(A, BC.getRegister());
 }
 
 void CPU::Opcode0x0B() {
@@ -1248,7 +1248,7 @@ void CPU::Opcode0x29() {
 }
 
 void CPU::Opcode0x2A() {
-	LD(A, mmu->get(HL.getRegister()));
+	LD(A, HL.getRegister());
 	HL.setRegister(HL.getRegister() + 1);
 }
 
@@ -1377,7 +1377,7 @@ void CPU::Opcode0x45() {
 }
 
 void CPU::Opcode0x46() {
-	LD(B, mmu->get(HL.getRegister()));
+	LD(B, HL.getRegister());
 }
 
 void CPU::Opcode0x47() {
@@ -1409,7 +1409,7 @@ void CPU::Opcode0x4D() {
 }
 
 void CPU::Opcode0x4E() {
-	LD(C, mmu->get(HL.getRegister()));
+	LD(C, HL.getRegister());
 }
 
 void CPU::Opcode0x4F() {
@@ -1441,7 +1441,7 @@ void CPU::Opcode0x55() {
 }
 
 void CPU::Opcode0x56() {
-	LD(D, mmu->get(HL.getRegister()));
+	LD(D, HL.getRegister());
 }
 
 void CPU::Opcode0x57() {
@@ -1473,7 +1473,7 @@ void CPU::Opcode0x5D() {
 }
 
 void CPU::Opcode0x5E() {
-	LD(E, mmu->get(HL.getRegister()));
+	LD(E, HL.getRegister());
 }
 
 void CPU::Opcode0x5F() {
@@ -1505,7 +1505,7 @@ void CPU::Opcode0x65() {
 }
 
 void CPU::Opcode0x66() {
-	LD(H, mmu->get(HL.getRegister()));
+	LD(H, HL.getRegister());
 }
 
 void CPU::Opcode0x67() {
@@ -1537,10 +1537,7 @@ void CPU::Opcode0x6D() {
 }
 
 void CPU::Opcode0x6E() {
-	/*PrintHex16(+pc);
-	PrintHex16(HL.getRegister());
-	PrintHex(mmu->get(HL.getRegister()));*/
-	LD(L, mmu->get(HL.getRegister()));
+	LD(L, HL.getRegister());
 }
 
 void CPU::Opcode0x6F() {
@@ -1604,7 +1601,7 @@ void CPU::Opcode0x7D() {
 }
 
 void CPU::Opcode0x7E() {
-	LD(A, mmu->get(HL.getRegister()));
+	LD(A, HL.getRegister());
 }
 
 void CPU::Opcode0x7F() {
@@ -1637,7 +1634,6 @@ void CPU::Opcode0x85() {
 
 void CPU::Opcode0x86() {
 	ADD(mmu->get(HL.getRegister()));
-	pc++;
 }
 
 void CPU::Opcode0x87() {
@@ -2238,6 +2234,7 @@ void CPU::extendedOpcode0x05() {
 void CPU::extendedOpcode0x06() {
 	uint8_t imm = mmu->get(HL.getRegister());
 	RLC(&imm);
+	mmu->set(HL.getRegister(), imm);
 }
 
 void CPU::extendedOpcode0x07() {
@@ -2271,6 +2268,7 @@ void CPU::extendedOpcode0x0D() {
 void CPU::extendedOpcode0x0E() {
 	uint8_t imm = mmu->get(HL.getRegister());
 	RRC(&imm);
+	mmu->set(HL.getRegister(), imm);
 }
 
 void CPU::extendedOpcode0x0F() {
@@ -2304,6 +2302,7 @@ void CPU::extendedOpcode0x15() {
 void CPU::extendedOpcode0x16() {
 	uint8_t imm = mmu->get(HL.getRegister());
 	RL(&imm);
+	mmu->set(HL.getRegister(), imm);
 }
 
 void CPU::extendedOpcode0x17() {
@@ -2335,8 +2334,9 @@ void CPU::extendedOpcode0x1D() {
 }
 
 void CPU::extendedOpcode0x1E() {
-	uint8_t imm = mmu->get(HL.getRegister());
+	 uint8_t imm = mmu->get(HL.getRegister());
 	RR(&imm);
+	mmu->set(HL.getRegister(), imm);
 }
 
 void CPU::extendedOpcode0x1F() {
@@ -2370,6 +2370,7 @@ void CPU::extendedOpcode0x25() {
 void CPU::extendedOpcode0x26() {
 	uint8_t imm = mmu->get(HL.getRegister());
 	SLA(&imm);
+	mmu->set(HL.getRegister(), imm);
 }
 
 void CPU::extendedOpcode0x27() {
@@ -2403,6 +2404,7 @@ void CPU::extendedOpcode0x2D() {
 void CPU::extendedOpcode0x2E() {
 	uint8_t imm = mmu->get(HL.getRegister());
 	SRA(&imm);
+	mmu->set(HL.getRegister(), imm);
 }
 
 void CPU::extendedOpcode0x2F() {
@@ -2436,6 +2438,7 @@ void CPU::extendedOpcode0x35() {
 void CPU::extendedOpcode0x36() {
 	uint8_t imm = mmu->get(HL.getRegister());
 	SWAP(&imm);
+	mmu->set(HL.getRegister(), imm);
 }
 
 void CPU::extendedOpcode0x37() {
@@ -2469,6 +2472,7 @@ void CPU::extendedOpcode0x3D() {
 void CPU::extendedOpcode0x3E() {
 	uint8_t imm = mmu->get(HL.getRegister());
 	SRL(&imm);
+	mmu->set(HL.getRegister(), imm);
 }
 
 void CPU::extendedOpcode0x3F() {
@@ -2766,6 +2770,7 @@ void CPU::extendedOpcode0x85() {
 void CPU::extendedOpcode0x86() {
 	uint8_t imm = mmu->get(HL.getRegister());
 	RES(0, &imm);
+	mmu->set(HL.getRegister(), imm);
 }
 
 void CPU::extendedOpcode0x87() {
@@ -2799,6 +2804,7 @@ void CPU::extendedOpcode0x8D() {
 void CPU::extendedOpcode0x8E() {
 	uint8_t imm = mmu->get(HL.getRegister());
 	RES(1, &imm);
+	mmu->set(HL.getRegister(), imm);
 }
 
 void CPU::extendedOpcode0x8F() {
@@ -2832,6 +2838,7 @@ void CPU::extendedOpcode0x95() {
 void CPU::extendedOpcode0x96() {
 	uint8_t imm = mmu->get(HL.getRegister());
 	RES(2, &imm);
+	mmu->set(HL.getRegister(), imm);
 }
 
 void CPU::extendedOpcode0x97() {
@@ -2865,6 +2872,7 @@ void CPU::extendedOpcode0x9D() {
 void CPU::extendedOpcode0x9E() {
 	uint8_t imm = mmu->get(HL.getRegister());
 	RES(3, &imm);
+	mmu->set(HL.getRegister(), imm);
 }
 
 void CPU::extendedOpcode0x9F() {
@@ -2898,6 +2906,7 @@ void CPU::extendedOpcode0xA5() {
 void CPU::extendedOpcode0xA6() {
 	uint8_t imm = mmu->get(HL.getRegister());
 	RES(4, &imm);
+	mmu->set(HL.getRegister(), imm);
 }
 
 void CPU::extendedOpcode0xA7() {
@@ -2931,6 +2940,7 @@ void CPU::extendedOpcode0xAD() {
 void CPU::extendedOpcode0xAE() {
 	uint8_t imm = mmu->get(HL.getRegister());
 	RES(5, &imm);
+	mmu->set(HL.getRegister(), imm);
 }
 
 void CPU::extendedOpcode0xAF() {
@@ -2964,6 +2974,7 @@ void CPU::extendedOpcode0xB5() {
 void CPU::extendedOpcode0xB6() {
 	uint8_t imm = mmu->get(HL.getRegister());
 	RES(6, &imm);
+	mmu->set(HL.getRegister(), imm);
 }
 
 void CPU::extendedOpcode0xB7() {
@@ -2997,6 +3008,7 @@ void CPU::extendedOpcode0xBD() {
 void CPU::extendedOpcode0xBE() {
 	uint8_t imm = mmu->get(HL.getRegister());
 	RES(7, &imm);
+	mmu->set(HL.getRegister(), imm);
 }
 
 void CPU::extendedOpcode0xBF() {
@@ -3030,6 +3042,7 @@ void CPU::extendedOpcode0xC5() {
 void CPU::extendedOpcode0xC6() {
 	uint8_t imm = mmu->get(HL.getRegister());
 	SET(0, &imm);
+	mmu->set(HL.getRegister(), imm);
 }
 
 void CPU::extendedOpcode0xC7() {
@@ -3063,6 +3076,7 @@ void CPU::extendedOpcode0xCD() {
 void CPU::extendedOpcode0xCE() {
 	uint8_t imm = mmu->get(HL.getRegister());
 	SET(1, &imm);
+	mmu->set(HL.getRegister(), imm);
 }
 
 void CPU::extendedOpcode0xCF() {
@@ -3096,6 +3110,7 @@ void CPU::extendedOpcode0xD5() {
 void CPU::extendedOpcode0xD6() {
 	uint8_t imm = mmu->get(HL.getRegister());
 	SET(2, &imm);
+	mmu->set(HL.getRegister(), imm);
 }
 
 void CPU::extendedOpcode0xD7() {
@@ -3129,6 +3144,7 @@ void CPU::extendedOpcode0xDD() {
 void CPU::extendedOpcode0xDE() {
 	uint8_t imm = mmu->get(HL.getRegister());
 	SET(3, &imm);
+	mmu->set(HL.getRegister(), imm);
 }
 
 void CPU::extendedOpcode0xDF() {
@@ -3162,6 +3178,7 @@ void CPU::extendedOpcode0xE5() {
 void CPU::extendedOpcode0xE6() {
 	uint8_t imm = mmu->get(HL.getRegister());
 	SET(4, &imm);
+	mmu->set(HL.getRegister(), imm);
 }
 
 void CPU::extendedOpcode0xE7() {
@@ -3195,6 +3212,7 @@ void CPU::extendedOpcode0xED() {
 void CPU::extendedOpcode0xEE() {
 	uint8_t imm = mmu->get(HL.getRegister());
 	SET(5, &imm);
+	mmu->set(HL.getRegister(), imm);
 }
 
 void CPU::extendedOpcode0xEF() {
@@ -3228,6 +3246,7 @@ void CPU::extendedOpcode0xF5() {
 void CPU::extendedOpcode0xF6() {
 	uint8_t imm = mmu->get(HL.getRegister());
 	SET(6, &imm);
+	mmu->set(HL.getRegister(), imm);
 }
 
 void CPU::extendedOpcode0xF7() {
@@ -3261,6 +3280,7 @@ void CPU::extendedOpcode0xFD() {
 void CPU::extendedOpcode0xFE() {
 	uint8_t imm = mmu->get(HL.getRegister());
 	SET(7, &imm);
+	mmu->set(HL.getRegister(), imm);
 }
 
 void CPU::extendedOpcode0xFF() {
