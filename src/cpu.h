@@ -40,7 +40,7 @@ public:
 	uint8_t interruptVectors[5] = { 0x40, 0x48, 0x50, 0x58, 0x60 };
 	std::bitset<5> interruptEnable;
 	std::bitset<5> interruptFlags;
-
+	std::bitset<5> interrupts;
 
 	void initialize();
 	void cycle();

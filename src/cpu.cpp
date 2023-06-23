@@ -107,7 +107,7 @@ void CPU::execute(uint8_t inst) {
 	if (!halted) pc++;
 	
 	if (ime) {
-		std::bitset<5> interrupts = (interruptFlags & interruptEnable);
+		interrupts = (interruptFlags & interruptEnable);
 		for (int i = 0; i <= 4; i++) {
 			if (interrupts.test(i)) {
 				PUSHSTACK16(pc);
