@@ -105,6 +105,19 @@ void CPU::execute(uint8_t inst) {
 	count++;
 	(this->*opcodes[inst])();
 	if (!halted) pc++;
+	
+	if (ime) {
+		std::bitset<5> interrupts = (interruptFlags & interruptEnable);
+		for (int i = 0; i <= 4; i++) {
+			if (interrupts.test(i)) {
+				PUSHSTACK16(pc);
+				pc = interruptVectors[1];
+				(this->*opcodes[mmu->memory[pc]])();
+				RETI();
+			}
+		}
+		ime = false;
+	}
 }
 
 uint8_t CPU::getFlag(uint8_t flag) {
@@ -473,7 +486,8 @@ void CPU::RET() {
 }
 
 void CPU::RETI() {
-	PrintMessage(Debug, "Implement RETI!");
+	pc = mmu->formWord(mmu->get(sp + 1), mmu->get(sp));
+	sp += 2;
 }
 
 void CPU::RST(uint8_t vec) {
@@ -2334,7 +2348,7 @@ void CPU::extendedOpcode0x1D() {
 }
 
 void CPU::extendedOpcode0x1E() {
-	 uint8_t imm = mmu->get(HL.getRegister());
+	uint8_t imm = mmu->get(HL.getRegister());
 	RR(&imm);
 	mmu->set(HL.getRegister(), imm);
 }

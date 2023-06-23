@@ -37,6 +37,10 @@ public:
 	uint16_t cycles;
 
 	uint8_t RSTJumpVectors[8] = { 0x0000, 0x0008, 0x0010, 0x0018, 0x0020, 0x0028, 0x0030, 0x0038 };
+	uint8_t interruptVectors[5] = { 0x40, 0x48, 0x50, 0x58, 0x60 };
+	std::bitset<5> interruptEnable;
+	std::bitset<5> interruptFlags;
+
 
 	void initialize();
 	void cycle();
