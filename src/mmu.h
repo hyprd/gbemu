@@ -8,6 +8,12 @@ public:
 	uint8_t memory[GB_MEMORY];
 	uint32_t romSize = 0;
 
+	std::bitset<5> interruptEnable;
+	std::bitset<5> interruptFlags;
+	std::bitset<5> interrupts;
+
+	std::bitset<5> TAC;
+
 	void load(std::string file);
 	void set(uint16_t address, uint8_t value);
 	uint8_t get(uint16_t);

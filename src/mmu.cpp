@@ -19,8 +19,26 @@ void MMU::load(std::string file) {
 }
 
 void MMU::set(uint16_t address, uint8_t value) {
-    if (address == 0xFF01) std::cout << value;
+    switch (address) { 
+    case 0xFF01: 
+        std::cout << value;
+        break;
+    case 0xFF0F: // IF
+        interruptFlags.reset() ^= value;
+        break;
+    case 0xFFFF: // IE
+        interruptEnable.reset() ^= value;
+        break;
+    case 0xFF04: // DIV
+        memory[address] = 0x00;
+    case 0xFF07: // TIMER CONTROL
+        TAC.reset() ^= value;
+        break;
+    default:
+        break;
+    }
     memory[address] = value;
+    //if (address == 0xFF05) std::cout << +get(0xFF05);
 }
 
 uint8_t MMU::get(uint16_t address) {

@@ -71,22 +71,94 @@ void CPU::initialize() {
 	mmu->set(0xFF49, 0xFF);
 	mmu->set(0xFF4A, 0x00);
 	mmu->set(0xFF4B, 0x00);
-	mmu->set(0xFFFF, 0x00);
+	mmu->set(0xFFFF, 0x00); // IE
+	mmu->set(0xFF0F, 0xE1); // IF
+
 	// Set stack pointer, program counter and cycles members to 
 	// default values
 	pc = 0x100;
 	cycles = 0x0000;
 	sp = 0xFFFE;
+	count = 0;
+	DIV = 0;
+	TMA = 0;
+	TAC = 0;
 	std::string f = "debug.txt";
 	dbg = std::ofstream (f, std::ios::binary);
 }
 
-void CPU::cycle() { 
+void CPU::cycle() {
 	execute(mmu->memory[+pc]);
 }
 
+void CPU::updateTimers() {
+	DIV += priorCycles;
+	if ((DIV & 0xFF) == 0xFF) {
+		DIV = 0;
+		mmu->memory[0xFF04]++;
+	}
+	if (TAC & 0b0100) { // If timer is enabled
+		TIMA -= priorCycles;
+		if (TIMA == 0) {
+			switch (TAC & 0b0011) {
+			case 0:
+				TMA = 1024; 
+				break;
+			case 1:
+				TMA = 16;
+				break;
+			case 2:
+				TMA = 64;
+				break;
+			case 3:
+				TMA = 256;
+				break; 
+			}
+			mmu->set(0xFF06, static_cast<uint8_t>(TMA));
+			if (mmu->get(0xFF05) == 0xFF) {
+				TIMA = TMA;
+				mmu->set(0xFF05, static_cast<uint8_t>(TMA));
+				mmu->interruptFlags.set(2);
+			}
+			else {
+				mmu->set(0xFF05, mmu->get(0xFF05) + 1);
+			}
+		}
+	}
+}
+
+void CPU::handleInterrupts() {
+	if (ime) {
+		mmu->interrupts = mmu->interruptEnable & mmu->interruptFlags;
+		if (mmu->interrupts.count() > 0) {
+			for (int i = 0; i < 5; i++) {
+				if (mmu->interrupts.test(i) && mmu->interrupts.count() == 1) {
+					ime = false;
+					mmu->interruptFlags.reset(i);
+					mmu->set(0xFF0F, mmu->interruptFlags.to_ulong());
+					PUSHSTACK16(pc + 1);
+					pc = interruptVectors[i];
+				}
+			}
+		}
+	}
+}
+
 void CPU::execute(uint8_t inst) {
-	/* here lies the forbidden code  */
+	if (!halted) {
+		(this->*opcodes[inst])();
+		priorCycles = opcodeTimings[inst];
+	}
+	else {
+		priorCycles = 1;
+	}
+	handleInterrupts();
+	cycles += opcodeTimings[inst];
+	updateTimers();
+	pc++;
+}
+
+void CPU::writeDebugToFile() {
 	dbg << std::hex << std::uppercase << std::setfill('0') <<
 		"A:" << std::setw(2) << +*AF.high <<
 		" F:" << std::setw(2) << +*AF.low <<
@@ -102,22 +174,10 @@ void CPU::execute(uint8_t inst) {
 		"," << std::setw(2) << +mmu->get(pc + 1) <<
 		"," << std::setw(2) << +mmu->get(pc + 2) <<
 		"," << std::setw(2) << +mmu->get(pc + 3) << "\n";
-	count++;
-	(this->*opcodes[inst])();
-	if (!halted) pc++;
-	
-	if (ime) {
-		interrupts = (interruptFlags & interruptEnable);
-		for (int i = 0; i <= 4; i++) {
-			if (interrupts.test(i)) {
-				PUSHSTACK16(pc);
-				pc = interruptVectors[1];
-				(this->*opcodes[mmu->memory[pc]])();
-				RETI();
-			}
-		}
-		ime = false;
-	}
+}
+
+void CPU::getFlags() {
+	std::cout << std::bitset<8>(*AF.low).to_string() << '\n';
 }
 
 uint8_t CPU::getFlag(uint8_t flag) {
@@ -130,10 +190,6 @@ void CPU::setFlag(uint8_t flag) {
 
 void CPU::clearFlag(uint8_t flag) {
 	mmu->clearBit(F, flag);
-}
-
-void CPU::getFlags() {
-	std::cout << "FLAGS " << std::bitset<8>(*AF.low) << std::endl;
 }
 
 void CPU::PUSHSTACK16(uint16_t word) {
@@ -305,12 +361,7 @@ void CPU::DEC(uint8_t * reg) {
 	*reg -= 1;
 	*reg == 0 ? setFlag(FLAG_Z) : clearFlag(FLAG_Z);
 	setFlag(FLAG_N);
-	if ((*reg & 0x0F) == 0x0F) {
-		setFlag(FLAG_H);
-	}
-	else {
-		clearFlag(FLAG_H);
-	}
+	(*reg & 0x0F) == 0x0F ? setFlag(FLAG_H) : clearFlag(FLAG_H);
 }
 
 void CPU::DEC_HL() {
@@ -466,28 +517,25 @@ void CPU::JP(int condition) {
 }
 
 void CPU::JR() {
-	pc += 1 + (static_cast <int8_t> (mmu->get(pc + 1)));
+	pc += 1 + (static_cast<int8_t>(mmu->get(pc + 1)));
 }
 
 void CPU::CALL() {
-	mmu->set(sp - 1, static_cast<uint8_t>(((pc + 3) >> 8) & 0xFF));
-	mmu->set(sp - 2, static_cast<uint8_t>((pc + 3) & 0xFF));
+	mmu->set(sp - 1, (pc + 3 >> 8) & 0xFF);
+	mmu->set(sp - 2, (pc + 3) & 0xFF);
 	sp -= 2;
-	uint16_t imm = mmu->formWord(mmu->get(pc + 2), mmu->get(pc + 1));
-	pc = imm - 1;
+	pc = mmu->formWord(mmu->get(pc + 2), mmu->get(pc + 1)) - 1;
 }
 
 void CPU::RET() {
-	uint8_t low = mmu->get(sp);
-	sp++;
-	uint8_t high = mmu->get(sp);
-	sp++;
-	pc = mmu->formWord(high, low) - 1;
+	pc = mmu->formWord(mmu->get(sp + 1), mmu->get(sp)) - 1;
+	sp += 2;
 }
 
 void CPU::RETI() {
-	pc = mmu->formWord(mmu->get(sp + 1), mmu->get(sp));
+	pc = mmu->formWord(mmu->get(sp + 1), mmu->get(sp)) - 1;
 	sp += 2;
+	ime = true;
 }
 
 void CPU::RST(uint8_t vec) {
@@ -1943,7 +1991,9 @@ void CPU::Opcode0xCA() {
 }
 
 void CPU::Opcode0xCB() {
-	(this->*extendedOpcodes[mmu->get(pc + 1)])();
+	uint8_t extended = mmu->get(pc + 1);
+	(this->*extendedOpcodes[extended])();
+	cycles += opcodeExtendedTimings[extended];
 	pc++;
 }
 

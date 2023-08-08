@@ -26,31 +26,39 @@ public:
 	uint8_t FLAG_N = 6;
 	uint8_t FLAG_H = 5;
 	uint8_t FLAG_C = 4;
-
+	
 	Register AF, BC, DE, HL;
 
 	std::ofstream dbg;
-	int count = 0;
+
+	uint16_t TIMA;
+	uint16_t DIV;
+	uint16_t TMA;
+	uint16_t TAC;
+	uint8_t priorCycles;
+	void updateTimers();
 
 	uint16_t sp;
 	uint16_t pc;
 	uint16_t cycles;
 
+	uint16_t count;
+
 	uint8_t RSTJumpVectors[8] = { 0x0000, 0x0008, 0x0010, 0x0018, 0x0020, 0x0028, 0x0030, 0x0038 };
 	uint8_t interruptVectors[5] = { 0x40, 0x48, 0x50, 0x58, 0x60 };
-	std::bitset<5> interruptEnable;
-	std::bitset<5> interruptFlags;
-	std::bitset<5> interrupts;
+	void handleInterrupts();
+	uint8_t currentInterrupt = 0;
 
 	void initialize();
 	void cycle();
 	void execute(uint8_t inst);
 	void bindOpcodes();
 
+	void writeDebugToFile();
 	uint8_t getFlag(uint8_t flag);
+	void getFlags();
 	void setFlag(uint8_t flag);
 	void clearFlag(uint8_t flag);
-	void getFlags();
 
 	bool halted = false;
 	bool ime = false;
