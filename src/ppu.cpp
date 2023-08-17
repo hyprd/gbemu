@@ -13,3 +13,12 @@ PPU::~PPU() {
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 }
+
+void PPU::setPixel(uint16_t x, uint16_t y, uint16_t colour) {
+	int16_t pixel = y * GB_WIDTH + x;
+	pixelbuffer[pixel] = colour;
+}
+
+
+
+
