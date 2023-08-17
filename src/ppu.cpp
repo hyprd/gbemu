@@ -19,6 +19,12 @@ void PPU::setPixel(uint16_t x, uint16_t y, uint16_t colour) {
 	pixelbuffer[pixel] = colour;
 }
 
+void PPU::render() {
+	SDL_UpdateTexture(texture, nullptr, pixelbufferReady, 2 * GB_WIDTH);
+	SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+	SDL_RenderPresent(renderer);
+}
+
 
 
 
